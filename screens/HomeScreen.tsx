@@ -180,13 +180,31 @@ export default function HomeScreen({
       <View style={styles.content}>
         {!hasImportedData ? (
           // First time user - show import interface
-          <>
-            <TouchableOpacity style={styles.importButton} onPress={handleImportPress}>
-              <Ionicons name="download-outline" size={80} color="#fff" />
-            </TouchableOpacity>
-            <Text style={styles.importLabel}>Import Roster</Text>
-            <Text style={styles.importLabel}>As CSV</Text>
-          </>
+        //   <>
+        //     <TouchableOpacity style={styles.importButton} onPress={handleImportPress}>
+        //       <Ionicons name="download-outline" size={80} color="#fff" />
+        //     </TouchableOpacity>
+        //     <Text style={styles.importLabel}>Import Roster</Text>
+        //     <Text style={styles.importLabel}>As CSV</Text>
+        //   </>
+            <View style={styles.container}>
+
+
+                <View style={styles.emptyContainer}>
+                    <Ionicons name="people-outline" size={80} color="#9ca3af" />
+                    <Text style={styles.emptyText}>No roster data available</Text>
+                    <Text style={styles.emptySubtext}>Import your CSV file to see your players here</Text>
+                    
+                    <TouchableOpacity 
+                    style={styles.importButton}
+                    onPress={handleImportPress}
+                    >
+                    <Ionicons name="download-outline" size={20} color="#fff" />
+                    <Text style={styles.importButtonText}>Import Roster</Text>
+                    </TouchableOpacity>
+                </View>
+            </View>
+        
         ) : (
           // User has data - show roster status and options
           <>
@@ -240,7 +258,7 @@ export default function HomeScreen({
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: '#0f0f23',
   },
   header: {
     flexDirection: 'row',
@@ -257,8 +275,9 @@ const styles = StyleSheet.create({
   headerTitle: {
     fontSize: 24,
     fontWeight: 'bold',
-    color: '#000000',
+    color: '#ffffff',
     marginLeft: 12,
+    flex: 1,
   },
   content: {
     flex: 1,
@@ -267,12 +286,13 @@ const styles = StyleSheet.create({
     paddingHorizontal: 32,
   },
   importButton: {
-    width: 200,
-    height: 200,
-    borderRadius: 100,
-    backgroundColor: '#0093D5',
-    justifyContent: 'center',
+    flexDirection: 'row',
     alignItems: 'center',
+    backgroundColor: '#0093D5',
+    paddingVertical: 12,
+    paddingHorizontal: 24,
+    borderRadius: 8,
+    gap: 8,
   },
   importLabel: {
     marginTop: 12,
@@ -334,5 +354,30 @@ const styles = StyleSheet.create({
     color: '#0093D5',
     fontSize: 16,
     fontWeight: '500',
+  },
+  emptyContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingHorizontal: 32,
+  },emptyText: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    color: '#ffffff',
+    marginBottom: 8,
+    marginTop: 16,
+    textAlign: 'center',
+  },
+  emptySubtext: {
+    fontSize: 16,
+    color: '#9ca3af',
+    textAlign: 'center',
+    lineHeight: 22,
+    marginBottom: 32,
+  },
+  importButtonText: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: '600',
   },
 });

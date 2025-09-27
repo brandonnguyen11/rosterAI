@@ -292,9 +292,10 @@ const NewsScreen: React.FC<any> = ({ csvData, setCsvData, onHomePress, onBookPre
           showsVerticalScrollIndicator={false}
         />
       )}
-
+      {/* Navigation Bar */}
       <NavigationBar onHomePress={onHomePress} onBookPress={onBookPress} onEyePress={onEyePress} />
     </View>
+
   );
 };
 
