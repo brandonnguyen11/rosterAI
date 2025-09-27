@@ -1,43 +1,33 @@
 import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Image } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 import NavigationBar from '../components/NavigationBar';
 
-
 export default function HomeScreen() {
-  const handleHomePress = () => {
-    console.log('Home pressed');
-  };
-
-  const handleBookPress = () => {
-    console.log('News Pressed');
-  };
-
-  const handleEyePress = () => {
-    console.log('Insights pressed');
-  };
-
-  const handleImportPress = () => {
-    console.log('Import CSV pressed');
-  };
+  const handleHomePress = () => console.log('Home pressed');
+  const handleBookPress = () => console.log('News Pressed');
+  const handleEyePress = () => console.log('Insights pressed');
+  const handleImportPress = () => console.log('Import CSV pressed');
 
   return (
     <View style={styles.container}>
-      {/* Header with logo and import button */}
+      {/* Header with logo */}
       <View style={styles.header}>
-        <View style={styles.importContainer}>
-          <TouchableOpacity style={styles.importButton} onPress={handleImportPress}>
-            <Text style={styles.importButtonText}>Import</Text>
-          </TouchableOpacity>
-          <Text style={styles.importLabel}>Import roster as CSV</Text>
-        </View>
+        <Image 
+          source={require('../assets/Logo.png')} // replace with your logo path
+          style={styles.logo} 
+        />
       </View>
 
       {/* Main content */}
       <View style={styles.content}>
-        <Text style={styles.text}>BALLS</Text>
+        <TouchableOpacity style={styles.importButton} onPress={handleImportPress}>
+          <Ionicons name="cloud-download-outline" size={40} color="#fff" />
+        </TouchableOpacity>
+        <Text style={styles.importLabel}>Import roster as CSV</Text>
       </View>
 
-      {/* Navigation Bar at the bottom */}
+      {/* Navigation Bar */}
       <NavigationBar
         onHomePress={handleHomePress}
         onBookPress={handleBookPress}
@@ -53,35 +43,32 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
   },
   header: {
+    paddingHorizontal: 16,
+    paddingTop: 24,
     flexDirection: 'row',
     alignItems: 'center',
-    padding: 16,
   },
-  importContainer: {
-    flex: 1,
-    alignItems: 'center',
-  },
-  importButton: {
-    backgroundColor: '#007AFF',
-    paddingVertical: 8,
-    paddingHorizontal: 16,
-    borderRadius: 8,
-  },
-  importButtonText: {
-    color: '#fff',
-    fontSize: 16,
-  },
-  importLabel: {
-    marginTop: 4,
-    fontSize: 12,
-    color: '#555',
+  logo: {
+    width: 40,
+    height: 40,
+    resizeMode: 'contain',
   },
   content: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
   },
-  text: {
-    fontSize: 24,
+  importButton: {
+    width: 100,           // large round button
+    height: 100,
+    borderRadius: 50,     // makes it perfectly circular
+    backgroundColor: '#007AFF',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  importLabel: {
+    marginTop: 12,
+    fontSize: 14,
+    color: '#555',
   },
 });
