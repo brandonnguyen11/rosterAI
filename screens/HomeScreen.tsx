@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useEffect } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Image, Alert } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import * as DocumentPicker from 'expo-document-picker';
@@ -6,9 +7,13 @@ import * as FileSystem from 'expo-file-system/legacy';
 import Papa from 'papaparse';
 import NavigationBar from '../components/NavigationBar';
 
-export default function HomeScreen() {
+interface HomeScreenProps {
+  csvData: any[];
+  setCsvData: (data: any[]) => void;
+}
+
+export default function HomeScreen({ csvData, setCsvData }: HomeScreenProps) {
   const [fileUri, setFileUri] = useState<string | null>(null);
-  const [csvData, setCsvData] = useState<any[]>([]);
 
   const handleHomePress = () => console.log('Home pressed');
   const handleBookPress = () => console.log('News Pressed');
@@ -39,7 +44,11 @@ export default function HomeScreen() {
         setFileUri(fileName ?? 'Unknown');
   
         Alert.alert('CSV Imported', `Loaded ${parsed.data.length} rows from ${fileName}`);
-        console.log(parsed.data);
+        //console.log(parsed.data);
+        csvData.forEach(player => {
+          console.log(player.playerName);
+        });
+        
       } else {
         console.log('User cancelled document picker');
       }
