@@ -1,0 +1,41 @@
+{
+    "articles": [
+      {
+        "teamName": "Kansas City Chiefs",
+        "playerName": "Patrick Mahomes",
+        "articleTitle": "Mahomes Throws 4 TDs in Chiefs Win",
+        "sourceURL": "https://www.nfl.com/news/mahomes-chiefs-week4",
+        "sourceHost": "NFL.com",
+        "date": "2025-09-27",
+        "bodyText": "Patrick Mahomes led the Chiefs with four touchdown passes, securing a dominant victory over their division rivals."
+      },
+      {
+        "teamName": "San Francisco 49ers",
+        "playerName": "Christian McCaffrey",
+        "articleTitle": "McCaffrey Racks Up 150 Yards Against Rams",
+        "sourceURL": "https://www.espn.com/nfl/story/_/id/98765432/mccaffrey-dominates-rams",
+        "sourceHost": "ESPN",
+        "date": "2025-09-26",
+        "bodyText": "Christian McCaffrey showcased his versatility with 150 all-purpose yards as the 49ers defeated the Rams in a close matchup."
+      },
+      {
+        "teamName": "Buffalo Bills",
+        "playerName": "Josh Allen",
+        "articleTitle": "Allen Leads Bills Comeback in Overtime",
+        "sourceURL": "https://sports.yahoo.com/josh-allen-bills-ot-win",
+        "sourceHost": "Yahoo Sports",
+        "date": "2025-09-25",
+        "bodyText": "Josh Allen threw a game-winning touchdown in overtime to lift the Bills past the Dolphins in a thrilling AFC East clash."
+      },
+      {
+        "teamName": "Seattle Seahawks",
+        "playerName": "Geno Smith",
+        "articleTitle": "Smith crumbles in crushing Seahawk's defeat",
+        "sourceURL": "https://sports.yahoo.com/josh-allen-bills-ot-win",
+        "sourceHost": "Yahoo Sports",
+        "date": "2025-09-25",
+        "bodyText": "Geno Smith threw two passing interceptions over the course of this division game, leading the Seahawks to a loss of 6 to 23"
+      }
+    ]
+  }
+  
