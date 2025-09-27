@@ -1,0 +1,26 @@
+{
+  "articles": [
+    {
+      "teamName": "Kansas City Chiefs",
+      "playerName": "Patrick Mahomes",
+      "headline": "Mahomes Throws 4 TDs in Chiefs Win",
+      "content": "Patrick Mahomes led the Chiefs with four touchdown passes, securing a dominant victory over their division rivals.",
+      "sourceLink": "https://www.nfl.com/news/mahomes-chiefs-week4",
+      "sourceHost": "NFL.com",
+      "date": "2025-09-27",
+      "availability": "available",
+      "playerImage": "https://via.placeholder.com/50"
+    },
+    {
+      "teamName": "San Francisco 49ers",
+      "playerName": "Christian McCaffrey",
+      "headline": "McCaffrey Racks Up 150 Yards Against Rams",
+      "content": "Christian McCaffrey showcased his versatility with 150 all-purpose yards as the 49ers defeated the Rams in a close matchup.",
+      "sourceLink": "https://www.espn.com/nfl/story/_/id/98765432/mccaffrey-dominates-rams",
+      "sourceHost": "ESPN",
+      "date": "2025-09-26",
+      "availability": "available",
+      "playerImage": "https://via.placeholder.com/50"
+    }
+  ]
+}
