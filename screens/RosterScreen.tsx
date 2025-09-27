@@ -1,60 +1,196 @@
 import React from 'react';
-import { View, Text, FlatList, StyleSheet, Image } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { View, Text, FlatList, StyleSheet, Image, TouchableOpacity, Alert } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import NavigationBar from '../components/NavigationBar';
+import { SafeAreaView } from 'react-native';
 
 interface RosterScreenProps {
   csvData: any[];
   setCsvData: (data: any[]) => void;
+  onHomePress?: () => void;
+  onBookPress?: () => void;
+  onEyePress?: () => void;
+  onNavigateToHome?: () => void;
 }
 
-export default function RosterScreen({ csvData }: RosterScreenProps) {
+export default function RosterScreen({ 
+  csvData,
+  setCsvData, 
+  onHomePress, 
+  onBookPress, 
+  onEyePress,
+  onNavigateToHome 
+}: RosterScreenProps) {
+  const handleImportNew = () => {
+    Alert.alert(
+      'Import New Roster',
+      'This will replace your current roster data. Continue?',
+      [
+        {
+          text: 'Cancel',
+          style: 'cancel',
+        },
+        {
+          text: 'Import',
+          onPress: () => {
+            if (onNavigateToHome) {
+              onNavigateToHome();
+            }
+          },
+        },
+      ]
+    );
+  };
+
+  const handleClearData = async () => {
+    Alert.alert(
+      'Clear Roster',
+      'Are you sure you want to clear all roster data?',
+      [
+        {
+          text: 'Cancel',
+          style: 'cancel',
+        },
+        {
+          text: 'Clear',
+          style: 'destructive',
+          onPress: async () => {
+            try {
+              await AsyncStorage.removeItem('rosterData');
+              await AsyncStorage.removeItem('rosterFileName');
+              setCsvData([]);
+            } catch (error) {
+              console.error('Error clearing data:', error);
+            }
+          },
+        },
+      ]
+    );
+  };
+
   if (!csvData || csvData.length === 0) {
     return (
       <View style={styles.container}>
-        <Text style={styles.emptyText}>No roster data available</Text>
+        {/* Header */}
+        <View style={styles.header}>
+          <Image 
+            source={require('../assets/Logo.png')}
+            style={styles.logo} 
+          />
+          <Text style={styles.headerTitle}>Your Roster</Text>
+        </View>
+
+        <View style={styles.emptyContainer}>
+          <Ionicons name="people-outline" size={80} color="#636363" />
+          <Text style={styles.emptyText}>No roster data available</Text>
+          <Text style={styles.emptySubtext}>Import your CSV file to see your players here</Text>
+          
+          <TouchableOpacity 
+            style={styles.importButton}
+            onPress={onNavigateToHome}
+          >
+            <Ionicons name="download-outline" size={20} color="#fff" />
+            <Text style={styles.importButtonText}>Import Roster</Text>
+          </TouchableOpacity>
+        </View>
+
+        <NavigationBar
+          onHomePress={onHomePress}
+          onBookPress={onBookPress}
+          onEyePress={onEyePress}
+        />
       </View>
     );
   }
 
   return (
-    <SafeAreaView style={styles.container}>
-      <View>
+    <View style={styles.container}>
+      {/* Header */}
+      <View style={styles.header}>
         <Image 
           source={require('../assets/Logo.png')}
           style={styles.logo} 
         />
+        <Text style={styles.headerTitle}>Your Roster</Text>
+        
+        {/* Header Actions */}
+        <View style={styles.headerActions}>
+          <TouchableOpacity 
+            onPress={handleImportNew}
+            style={styles.headerButton}
+          >
+            <Ionicons name="download-outline" size={20} color="#0093D5" />
+          </TouchableOpacity>
+          <TouchableOpacity 
+            onPress={handleClearData}
+            style={styles.headerButton}
+          >
+            <Ionicons name="trash-outline" size={20} color="#ef4444" />
+          </TouchableOpacity>
+        </View>
       </View>
 
-      <Text style={styles.headerText}>Your Roster</Text>
-      <View style={styles.headerLine} />
-
-      <FlatList
-        data={[
-          { type: 'header', label: 'Active' },
-          ...csvData.filter(player => player.Slot !== 'BEN').map(p => ({ type: 'player', ...p })),
-          { type: 'header', label: 'Bench' },
-          ...csvData.filter(player => player.Slot === 'BEN').map(p => ({ type: 'player', ...p })),
-        ]}
-        keyExtractor={(_, index) => index.toString()}
-        renderItem={({ item }) => {
-          if (item.type === 'header') return <Text style={styles.subHeader}>{item.label}</Text>;
-
-          return (
-            <View style={styles.playerCard}>
-              <View style={{ flex: 1 }}>
-                <Text style={styles.playerName}>{item.playerName}</Text>
-                <Text style={styles.details}>
-                  {item.POS} | {item.Team}
+      <View style={styles.content}>
+        <View style={styles.headerLine} />
+        
+        {/* Roster Summary */}
+        <View style={styles.summaryContainer}>
+          <Text style={styles.summaryText}>
+            {csvData.length} players • {csvData.filter(p => p.Slot !== 'BEN').length} starting • {csvData.filter(p => p.Slot === 'BEN').length} bench
+          </Text>
+        </View>
+        
+        <FlatList
+          data={[
+            { type: 'header', label: 'Active Lineup' },
+            ...csvData.filter(player => player.Slot !== 'BEN').map(p => ({ type: 'player', ...p })),
+            { type: 'header', label: 'Bench' },
+            ...csvData.filter(player => player.Slot === 'BEN').map(p => ({ type: 'player', ...p })),
+          ]}
+          keyExtractor={(_, index) => index.toString()}
+          renderItem={({ item }) => {
+            if (item.type === 'header') {
+              return (
+                <View style={styles.sectionHeader}>
+                  <Text style={styles.subHeader}>{item.label}</Text>
+                </View>
+              );
+            }
+            return (
+              <View style={styles.playerCard}>
+                <View style={styles.playerLeft}>
+                  <View style={styles.positionBadge}>
+                    <Text style={styles.positionText}>
+                      {(item.POS || item.position || 'FLEX').substring(0, 3)}
+                    </Text>
+                  </View>
+                  <View style={styles.playerInfo}>
+                    <Text style={styles.playerName}>
+                      {item.playerName || item.Player || 'Unknown Player'}
+                    </Text>
+                    <Text style={styles.details}>
+                      {(item.Team || item.team || 'UNK')} • {(item.Opponent || item.opponent || 'vs TBD')}
+                    </Text>
+                  </View>
+                </View>
+                <Text style={styles.projPoints}>
+                  {item.Proj || item.projection || '-'}
                 </Text>
               </View>
+            );
+          }}
+          contentContainerStyle={styles.listContainer}
+          showsVerticalScrollIndicator={false}
+        />
+      </View>
 
-              <Text style={styles.projPoints}>{item.Proj ?? '-'}</Text>
-            </View>
-          );
-        }}
-        contentContainerStyle={{ paddingBottom: 80 }}
+      <NavigationBar
+        onHomePress={onHomePress}
+        onBookPress={onBookPress}
+        onEyePress={onEyePress}
       />
-    </SafeAreaView>
+    </View>
   );
 }
 
@@ -62,28 +198,39 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#fff',
-    paddingHorizontal: 16,
-    paddingTop: 16,
   },
-  headerLogo: {
-    position: 'absolute',
-    top: 16,
-    left: 16,
-    zIndex: 10,
+  header: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: 16,
+    paddingTop: 24,
+    paddingBottom: 16,
   },
   logo: {
-    width: 60,
-    height: 60,
+    width: 40,
+    height: 40,
     resizeMode: 'contain',
   },
-  headerText: {
+  headerTitle: {
     fontSize: 24,
-    fontWeight: '600',
-    marginBottom: 12,
-    textAlign: 'left',
-    color: '#636363',
-    fontFamily: 'OpenSans-Bold',
-    marginTop: 16,
+    fontWeight: 'bold',
+    color: '#000000',
+    marginLeft: 12,
+    flex: 1,
+  },
+  headerActions: {
+    flexDirection: 'row',
+    gap: 12,
+  },
+  headerButton: {
+    padding: 8,
+    borderRadius: 8,
+    backgroundColor: '#f5f5f5',
+  },
+  content: {
+    flex: 1,
+    paddingHorizontal: 16,
   },
   headerLine: {
     height: 3,
@@ -93,11 +240,21 @@ const styles = StyleSheet.create({
     marginBottom: 12,
     borderRadius: 1,
   },
+  summaryContainer: {
+    marginBottom: 16,
+  },
+  summaryText: {
+    fontSize: 14,
+    color: '#636363',
+    textAlign: 'center',
+  },
+  sectionHeader: {
+    marginTop: 16,
+    marginBottom: 8,
+  },
   subHeader: {
     fontSize: 20,
     fontWeight: '600',
-    marginTop: 16,
-    marginBottom: 8,
     color: '#636363',
     textAlign: 'left',
   },
@@ -114,6 +271,28 @@ const styles = StyleSheet.create({
     shadowRadius: 4,
     shadowOffset: { width: 0, height: 3 },
     elevation: 3,
+  },
+  playerLeft: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    flex: 1,
+  },
+  positionBadge: {
+    backgroundColor: '#0093D5',
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 6,
+    marginRight: 12,
+    minWidth: 40,
+    alignItems: 'center',
+  },
+  positionText: {
+    color: '#fff',
+    fontSize: 12,
+    fontWeight: '600',
+  },
+  playerInfo: {
+    flex: 1,
   },
   playerName: {
     fontSize: 18,
@@ -132,10 +311,42 @@ const styles = StyleSheet.create({
     textAlign: 'right',
     minWidth: 40,
   },
+  listContainer: {
+    paddingBottom: 100, // Space for navigation bar
+  },
+  emptyContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingHorizontal: 32,
+  },
   emptyText: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    color: '#636363',
+    marginBottom: 8,
+    marginTop: 16,
+    textAlign: 'center',
+  },
+  emptySubtext: {
     fontSize: 16,
     color: '#999',
     textAlign: 'center',
-    marginTop: 40,
+    lineHeight: 22,
+    marginBottom: 32,
+  },
+  importButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#0093D5',
+    paddingVertical: 12,
+    paddingHorizontal: 24,
+    borderRadius: 8,
+    gap: 8,
+  },
+  importButtonText: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: '600',
   },
 });

@@ -1,26 +1,81 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Image, Alert } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import * as DocumentPicker from 'expo-document-picker';
 import * as FileSystem from 'expo-file-system/legacy';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import Papa from 'papaparse';
+import { SafeAreaView } from 'react-native';
 import NavigationBar from '../components/NavigationBar';
-import { SafeAreaView } from 'react-native-safe-area-context';
+
 
 interface HomeScreenProps {
   csvData: any[];
   setCsvData: (data: any[]) => void;
   onCsvImported: () => void;
+  onNavigateToInsights: () => void;
+  onNavigateToNews: () => void;
+  onNavigateToRoster: () => void;
 }
 
-export default function HomeScreen({ csvData, setCsvData, onCsvImported}: HomeScreenProps) {
+export default function HomeScreen({ 
+  csvData, 
+  setCsvData, 
+  onCsvImported, 
+  onNavigateToInsights,
+  onNavigateToNews,
+  onNavigateToRoster
+}: HomeScreenProps) {
   const [fileUri, setFileUri] = useState<string | null>(null);
+  const [hasImportedData, setHasImportedData] = useState(false);
+  const [showImportInterface, setShowImportInterface] = useState(false);
+
+  // Check for existing data on component mount
+  useEffect(() => {
+    checkForExistingData();
+  }, []);
+
+  // Update hasImportedData when csvData changes
+  useEffect(() => {
+    setHasImportedData(csvData && csvData.length > 0);
+  }, [csvData]);
+
+  const checkForExistingData = async () => {
+    try {
+      const savedData = await AsyncStorage.getItem('rosterData');
+      const savedFileName = await AsyncStorage.getItem('rosterFileName');
+      
+      if (savedData && savedFileName) {
+        const parsedData = JSON.parse(savedData);
+        setCsvData(parsedData);
+        setFileUri(savedFileName);
+        setHasImportedData(true);
+      }
+    } catch (error) {
+      console.error('Error loading saved data:', error);
+    }
+  };
 
   const handleHomePress = () => console.log('Home pressed');
-  const handleBookPress = () => console.log('News Pressed');
-  const handleEyePress = () => console.log('Insights pressed');
   
+  const handleBookPress = () => {
+    console.log('News Pressed');
+    onNavigateToNews();
+  };
+  
+  const handleEyePress = () => {
+    console.log('Insights pressed');
+    onNavigateToInsights();
+  };
 
+  const saveRosterData = async (data: any[], fileName: string) => {
+    try {
+      await AsyncStorage.setItem('rosterData', JSON.stringify(data));
+      await AsyncStorage.setItem('rosterFileName', fileName);
+    } catch (error) {
+      console.error('Error saving roster data:', error);
+    }
+  };
 
   const handleImportPress = async () => {
     try {
@@ -30,7 +85,7 @@ export default function HomeScreen({ csvData, setCsvData, onCsvImported}: HomeSc
       });
   
       if (!result.canceled && result.assets && result.assets.length > 0) {
-        const file = result.assets[0]; // first file
+        const file = result.assets[0];
         const fileUri = file.uri;
         const fileName = file.name ?? fileUri.split('/').pop();
   
@@ -43,15 +98,29 @@ export default function HomeScreen({ csvData, setCsvData, onCsvImported}: HomeSc
           skipEmptyLines: true,
         });
   
+        // Save data persistently
+        await saveRosterData(parsed.data as any[], fileName ?? 'roster.csv');
+        
         setCsvData(parsed.data as any[]);
-        setFileUri(fileName ?? 'Unknown');
+        setFileUri(fileName ?? 'roster.csv');
+        setHasImportedData(true);
+        setShowImportInterface(false);
   
-        Alert.alert('CSV Imported', `Loaded ${parsed.data.length} rows from ${fileName}`);
-        onCsvImported();
-        //console.log(parsed.data);
-        csvData.forEach(player => {
-          console.log(player.playerName);
-        });
+        Alert.alert('CSV Imported', `Loaded ${parsed.data.length} rows from ${fileName}`, [
+          {
+            text: 'View Roster',
+            onPress: () => {
+              onCsvImported();
+              onNavigateToRoster();
+            }
+          },
+          {
+            text: 'OK',
+            style: 'default'
+          }
+        ]);
+        
+        console.log(parsed.data);
         
       } else {
         console.log('User cancelled document picker');
@@ -61,30 +130,100 @@ export default function HomeScreen({ csvData, setCsvData, onCsvImported}: HomeSc
       Alert.alert('Error', 'Failed to import CSV');
     }
   };
-  
+
+  const handleImportNew = () => {
+    setShowImportInterface(true);
+    handleImportPress();
+  };
+
+  const clearData = async () => {
+    Alert.alert(
+      'Clear Roster Data',
+      'Are you sure you want to clear your current roster data?',
+      [
+        {
+          text: 'Cancel',
+          style: 'cancel',
+        },
+        {
+          text: 'Clear',
+          style: 'destructive',
+          onPress: async () => {
+            try {
+              await AsyncStorage.removeItem('rosterData');
+              await AsyncStorage.removeItem('rosterFileName');
+              setCsvData([]);
+              setFileUri(null);
+              setHasImportedData(false);
+              setShowImportInterface(false);
+            } catch (error) {
+              console.error('Error clearing data:', error);
+            }
+          },
+        },
+      ]
+    );
+  };
 
   return (
     <SafeAreaView style={styles.container}>
-      {/* Header with logo */}
+      {/* Header */}
       <View style={styles.header}>
         <Image 
           source={require('../assets/Logo.png')}
           style={styles.logo} 
         />
+        <Text style={styles.headerTitle}>Fantasy Hub</Text>
       </View>
 
       {/* Main content */}
       <View style={styles.content}>
-        <TouchableOpacity style={styles.importButton} onPress={handleImportPress}>
-          <Ionicons name="download-outline" size={80} color="#fff" />
-        </TouchableOpacity>
-        <Text style={styles.importLabel}>Import Roster</Text>
-        <Text style={styles.importLabel}>As CSV</Text>
-
-        {fileUri && (
-          <Text style={{ marginTop: 16, fontSize: 14, color: '#555', textAlign: 'center' }}>
-            File: {fileUri} ({csvData.length} rows loaded)
-          </Text>
+        {!hasImportedData ? (
+          // First time user - show import interface
+          <>
+            <TouchableOpacity style={styles.importButton} onPress={handleImportPress}>
+              <Ionicons name="download-outline" size={80} color="#fff" />
+            </TouchableOpacity>
+            <Text style={styles.importLabel}>Import Roster</Text>
+            <Text style={styles.importLabel}>As CSV</Text>
+          </>
+        ) : (
+          // User has data - show roster status and options
+          <>
+            <View style={styles.statusContainer}>
+              <Ionicons name="checkmark-circle" size={80} color="#10b981" />
+              <Text style={styles.statusTitle}>Roster Loaded</Text>
+              <Text style={styles.statusSubtitle}>
+                {csvData.length} players from {fileUri}
+              </Text>
+            </View>
+            
+            <View style={styles.actionButtonsContainer}>
+              <TouchableOpacity 
+                style={styles.primaryActionButton}
+                onPress={onNavigateToRoster}
+              >
+                <Ionicons name="people-outline" size={24} color="#fff" />
+                <Text style={styles.primaryActionButtonText}>View Roster</Text>
+              </TouchableOpacity>
+              
+              <TouchableOpacity 
+                style={styles.secondaryActionButton}
+                onPress={handleImportNew}
+              >
+                <Ionicons name="download-outline" size={20} color="#0093D5" />
+                <Text style={styles.secondaryActionButtonText}>Import New</Text>
+              </TouchableOpacity>
+              
+              <TouchableOpacity 
+                style={styles.secondaryActionButton}
+                onPress={clearData}
+              >
+                <Ionicons name="trash-outline" size={20} color="#ef4444" />
+                <Text style={[styles.secondaryActionButtonText, { color: '#ef4444' }]}>Clear Data</Text>
+              </TouchableOpacity>
+            </View>
+          </>
         )}
       </View>
 
@@ -104,20 +243,28 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
   },
   header: {
-    paddingHorizontal: 16,
-    paddingTop: 24,
     flexDirection: 'row',
     alignItems: 'center',
+    paddingHorizontal: 16,
+    paddingTop: 24,
+    paddingBottom: 16,
   },
   logo: {
-    width: 60,
-    height: 60,
+    width: 40,
+    height: 40,
     resizeMode: 'contain',
+  },
+  headerTitle: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    color: '#000000',
+    marginLeft: 12,
   },
   content: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
+    paddingHorizontal: 32,
   },
   importButton: {
     width: 200,
@@ -134,5 +281,58 @@ const styles = StyleSheet.create({
     fontFamily: 'OpenSans-SemiBold',
     textAlign: 'center',
     lineHeight: 30,
+  },
+  statusContainer: {
+    alignItems: 'center',
+    marginBottom: 40,
+  },
+  statusTitle: {
+    fontSize: 28,
+    fontWeight: 'bold',
+    color: '#10b981',
+    marginTop: 16,
+    textAlign: 'center',
+  },
+  statusSubtitle: {
+    fontSize: 16,
+    color: '#636363',
+    marginTop: 8,
+    textAlign: 'center',
+  },
+  actionButtonsContainer: {
+    width: '100%',
+    gap: 16,
+  },
+  primaryActionButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#0093D5',
+    paddingVertical: 16,
+    paddingHorizontal: 24,
+    borderRadius: 12,
+    gap: 8,
+  },
+  primaryActionButtonText: {
+    color: '#fff',
+    fontSize: 18,
+    fontWeight: '600',
+  },
+  secondaryActionButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: 'transparent',
+    paddingVertical: 12,
+    paddingHorizontal: 24,
+    borderRadius: 12,
+    borderWidth: 1.5,
+    borderColor: '#e5e7eb',
+    gap: 8,
+  },
+  secondaryActionButtonText: {
+    color: '#0093D5',
+    fontSize: 16,
+    fontWeight: '500',
   },
 });
