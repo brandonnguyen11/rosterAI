@@ -1,0 +1,32 @@
+[
+  {
+    "playerName": "Patrick Mahomes",
+    "teamName": "Kansas City Chiefs",
+    "articleImage": "https://via.placeholder.com/400x250",
+    "date": "2025-09-27",
+    "headline": "Mahomes ready for big divisional clash",
+    "source": "NFL.com",
+    "sourceLink": "https://www.nfl.com/news/mahomes-ready",
+    "content": "Patrick Mahomes is expected to deliver another strong performance in the upcoming divisional matchup against the Raiders. Coaches have praised his consistency and leadership..."
+  },
+  {
+    "playerName": "Justin Jefferson",
+    "teamName": "Minnesota Vikings",
+    "articleImage": "https://via.placeholder.com/400x250",
+    "date": "2025-09-26",
+    "headline": "Jefferson questionable with hamstring tightness",
+    "source": "ESPN.com",
+    "sourceLink": "https://www.espn.com/nfl/jefferson-injury",
+    "content": "Justin Jefferson has been listed as questionable for Sunday’s game after reporting hamstring tightness in practice. The Vikings medical staff will make a game-day decision..."
+  },
+  {
+    "playerName": "Christian McCaffrey",
+    "teamName": "San Francisco 49ers",
+    "articleImage": "https://via.placeholder.com/400x250",
+    "date": "2025-09-25",
+    "headline": "McCaffrey dominates in prime-time win",
+    "source": "Yahoo Sports",
+    "sourceLink": "https://sports.yahoo.com/mccaffrey-dominates",
+    "content": "Christian McCaffrey rushed for over 150 yards and scored twice in the 49ers’ statement victory. His performance solidifies him as one of the league’s top offensive threats..."
+  }
+]
