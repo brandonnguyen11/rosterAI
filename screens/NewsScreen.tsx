@@ -431,7 +431,7 @@ const NewsScreen: React.FC<NewsScreenProps> = ({
   );
 
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={styles.container}>
       {/* Header */}
       <View style={styles.header}>
         <Image 
@@ -490,7 +490,7 @@ const NewsScreen: React.FC<NewsScreenProps> = ({
         onBookPress={onBookPress}
         onEyePress={onEyePress}
       />
-    </View>
+    </SafeAreaView>
   );
 };
 

@@ -256,7 +256,7 @@ export default function InsightsScreen({
   );
 
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={styles.container}>
       {/* Header */}
       <View style={styles.header}>
         <Image 
@@ -308,14 +308,14 @@ export default function InsightsScreen({
         onBookPress={onBookPress}
         onEyePress={onEyePress}
       />
-    </View>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#111827',
+    backgroundColor: '#0f0f23',
   },
   header: {
     flexDirection: 'row',
