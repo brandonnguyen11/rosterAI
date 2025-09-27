@@ -2,15 +2,18 @@
 
 // news article tied to a player
 export interface PlayerArticle {
-  playerName: string;   // e.g. "Patrick Mahomes"
-  teamName: string;     // e.g. "Kansas City Chiefs"
-  articleImage: string; // url to article image (or placeholder)
-  date: string;         // ISO string or YYYY-MM-DD
-  headline: string;     // article headline
-  source: string;       // e.g. "NFL.com"
-  sourceLink: string;   // link to original article
-  content: string;      // article body/content
+  playerName: string;
+  teamName: string;
+  articleImage: string;
+  playerImage: string;       // ✅ new field
+  availability: "available" | "questionable" | "out"; // ✅ new field
+  date: string;
+  headline: string;
+  source: string;
+  sourceLink: string;
+  content: string;
 }
+
 
 // player type for roster/injury/etc.
 export type InjuryStatus = "Available" | "Questionable" | "Out" | "Probable";
