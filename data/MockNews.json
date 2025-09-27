@@ -2,6 +2,8 @@
   {
     "playerName": "Patrick Mahomes",
     "teamName": "Kansas City Chiefs",
+    "playerImage": "https://via.placeholder.com/80x80",
+    "availability": "available",
     "articleImage": "https://via.placeholder.com/400x250",
     "date": "2025-09-27",
     "headline": "Mahomes ready for big divisional clash",
@@ -12,6 +14,8 @@
   {
     "playerName": "Justin Jefferson",
     "teamName": "Minnesota Vikings",
+    "playerImage": "https://via.placeholder.com/80x80",
+    "availability": "questionable",
     "articleImage": "https://via.placeholder.com/400x250",
     "date": "2025-09-26",
     "headline": "Jefferson questionable with hamstring tightness",
@@ -22,6 +26,8 @@
   {
     "playerName": "Christian McCaffrey",
     "teamName": "San Francisco 49ers",
+    "playerImage": "https://via.placeholder.com/80x80",
+    "availability": "out",
     "articleImage": "https://via.placeholder.com/400x250",
     "date": "2025-09-25",
     "headline": "McCaffrey dominates in prime-time win",
