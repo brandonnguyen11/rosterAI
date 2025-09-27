@@ -1,7 +1,6 @@
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import NavigationBar from '../components/NavigationBar';
-import Logo from '../assets/Logo.svg';
 
 
 export default function HomeScreen() {
@@ -25,7 +24,6 @@ export default function HomeScreen() {
     <View style={styles.container}>
       {/* Header with logo and import button */}
       <View style={styles.header}>
-        <Logo width={50} height={50} /> {/* Top-left logo */}
         <View style={styles.importContainer}>
           <TouchableOpacity style={styles.importButton} onPress={handleImportPress}>
             <Text style={styles.importButtonText}>Import</Text>
