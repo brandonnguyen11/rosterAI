@@ -12,6 +12,7 @@ export interface PlayerArticle {
   source: string;
   sourceLink: string;
   content: string;
+  sourceHost: string; // <-- add this
 }
 
 

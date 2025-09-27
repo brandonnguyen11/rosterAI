@@ -1,0 +1,52 @@
+from dotenv import load_dotenv
+import os
+from google import genai
+from google.genai import types
+from pydantic import BaseModel
+from typing import List, Literal
+import json
+
+
+# Load the Gemini API key
+load_dotenv(dotenv_path="api.env")
+api_key = os.getenv("GEMINI_API_KEY")
+
+print("Gemini API Key loaded:", bool(api_key))
+
+client = genai.Client(api_key=api_key)
+
+
+class ArticleAnalysis(BaseModel):
+    teamName: str
+    playerName: str
+    articleTitle: str
+    sourceURL: str
+    sourceHost: str
+    date: str
+    bodyText: str
+    summary: str
+    sentiment: Literal["Positive", "Negative"]
+
+class ArticleList(BaseModel):
+    articles: List[ArticleAnalysis]
+
+base_dir = os.path.dirname(__file__)  
+file_path = os.path.join(base_dir, "utils", "sampleNews.json")
+
+with open(file_path, "r", encoding="utf-8") as f:
+    input_data = json.load(f)
+
+print("Loaded articles:", len(input_data["articles"]))
+
+
+
+response = client.models.generate_content(
+    model="gemini-2.5-flash",
+    contents=f"Given these articles in JSON format {json.dumps(input_data)}: return the same json with two extra field per article. First is summary, which you provide a two sentence brief summary of content. Second is sentiment analysis, where you provide whether the article is positive or negative for that player's outlook",
+    config={
+        "response_mime_type": "application/json",
+        "response_schema": ArticleList,
+    },
+)
+# Use the response as a JSON string.
+print(response.text)
