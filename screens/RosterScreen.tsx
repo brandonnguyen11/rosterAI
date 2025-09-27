@@ -199,7 +199,7 @@ export default function RosterScreen({
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: '#0f0f23',
   },
   header: {
     flexDirection: 'row',
@@ -217,7 +217,7 @@ const styles = StyleSheet.create({
   headerTitle: {
     fontSize: 24,
     fontWeight: 'bold',
-    color: '#000000',
+    color: '#FFFFFF',
     marginLeft: 12,
     flex: 1,
   },
@@ -227,8 +227,10 @@ const styles = StyleSheet.create({
   },
   headerButton: {
     padding: 8,
-    borderRadius: 8,
-    backgroundColor: '#f5f5f5',
+    backgroundColor: "rgba(255,255,255,0.05)",
+    borderColor: "rgba(255,255,255,0.1)",
+    borderRadius: 20,
+    borderWidth: 1,
   },
   content: {
     flex: 1,
@@ -236,7 +238,7 @@ const styles = StyleSheet.create({
   },
   headerLine: {
     height: 3,
-    backgroundColor: '#636363',
+    backgroundColor: '#FFFFFF',
     width: '45%',
     marginLeft: 0,
     marginBottom: 12,
@@ -247,7 +249,7 @@ const styles = StyleSheet.create({
   },
   summaryText: {
     fontSize: 14,
-    color: '#636363',
+    color: '#FFFFFF',
     textAlign: 'center',
   },
   sectionHeader: {
@@ -257,7 +259,7 @@ const styles = StyleSheet.create({
   subHeader: {
     fontSize: 20,
     fontWeight: '600',
-    color: '#636363',
+    color: '#FFFFFF',
     textAlign: 'left',
   },
   playerCard: {
@@ -266,8 +268,10 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     padding: 12,
     marginVertical: 6,
-    borderRadius: 12,
-    backgroundColor: '#f5f5f5',
+    backgroundColor: "rgba(255,255,255,0.05)",
+    borderColor: "rgba(255,255,255,0.1)",
+    borderRadius: 20,
+    borderWidth: 1,
     shadowColor: '#000',
     shadowOpacity: 0.1,
     shadowRadius: 4,
@@ -280,7 +284,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   positionBadge: {
-    backgroundColor: '#0093D5',
+    backgroundColor: '#20FC8F',
     paddingHorizontal: 8,
     paddingVertical: 4,
     borderRadius: 6,
@@ -299,7 +303,7 @@ const styles = StyleSheet.create({
   playerName: {
     fontSize: 18,
     fontWeight: '600',
-    color: '#333',
+    color: '#FFFFFF',
   },
   details: {
     fontSize: 14,
