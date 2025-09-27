@@ -1,6 +1,8 @@
 // components/Button.tsx
 import React from 'react';
 import { TouchableOpacity, Text, StyleSheet } from 'react-native';
+import { View } from 'react-native';
+
 
 interface ButtonProps {
   title: string;
