@@ -1,23 +1,26 @@
 import React, { useState } from 'react';
-import { useEffect } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Image, Alert } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import * as DocumentPicker from 'expo-document-picker';
 import * as FileSystem from 'expo-file-system/legacy';
 import Papa from 'papaparse';
 import NavigationBar from '../components/NavigationBar';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 interface HomeScreenProps {
   csvData: any[];
   setCsvData: (data: any[]) => void;
+  onCsvImported: () => void;
 }
 
-export default function HomeScreen({ csvData, setCsvData }: HomeScreenProps) {
+export default function HomeScreen({ csvData, setCsvData, onCsvImported}: HomeScreenProps) {
   const [fileUri, setFileUri] = useState<string | null>(null);
 
   const handleHomePress = () => console.log('Home pressed');
   const handleBookPress = () => console.log('News Pressed');
   const handleEyePress = () => console.log('Insights pressed');
+  
+
 
   const handleImportPress = async () => {
     try {
@@ -44,6 +47,7 @@ export default function HomeScreen({ csvData, setCsvData }: HomeScreenProps) {
         setFileUri(fileName ?? 'Unknown');
   
         Alert.alert('CSV Imported', `Loaded ${parsed.data.length} rows from ${fileName}`);
+        onCsvImported();
         //console.log(parsed.data);
         csvData.forEach(player => {
           console.log(player.playerName);
@@ -60,7 +64,7 @@ export default function HomeScreen({ csvData, setCsvData }: HomeScreenProps) {
   
 
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={styles.container}>
       {/* Header with logo */}
       <View style={styles.header}>
         <Image 
@@ -90,7 +94,7 @@ export default function HomeScreen({ csvData, setCsvData }: HomeScreenProps) {
         onBookPress={handleBookPress}
         onEyePress={handleEyePress}
       />
-    </View>
+    </SafeAreaView>
   );
 }
 
@@ -106,8 +110,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   logo: {
-    width: 40,
-    height: 40,
+    width: 60,
+    height: 60,
     resizeMode: 'contain',
   },
   content: {
