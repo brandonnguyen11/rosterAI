@@ -3,7 +3,8 @@ import { View, Text, FlatList, StyleSheet, Image, TouchableOpacity, Alert } from
 import { Ionicons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import NavigationBar from '../components/NavigationBar';
-import { SafeAreaView } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+
 
 interface RosterScreenProps {
   csvData: any[];
@@ -106,6 +107,7 @@ export default function RosterScreen({
 
   return (
     <View style={styles.container}>
+        <SafeAreaView style={styles.container} edges={['top', 'bottom']}>
       {/* Header */}
       <View style={styles.header}>
         <Image 
@@ -184,7 +186,7 @@ export default function RosterScreen({
           showsVerticalScrollIndicator={false}
         />
       </View>
-
+      </SafeAreaView>
       <NavigationBar
         onHomePress={onHomePress}
         onBookPress={onBookPress}
