@@ -12,7 +12,7 @@ export default function App() {
   
   useEffect(() => {
     csvData.forEach(player => {
-      console.log(player.playerName);
+      console.log(player.playerName, player.POS);
     });
   }, [csvData]);
 
