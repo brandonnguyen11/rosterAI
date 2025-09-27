@@ -8,10 +8,15 @@ import {
   TouchableOpacity,
   Linking,
   Dimensions,
-  SafeAreaView,
   ScrollView,
+  Alert,
 } from "react-native";
+import { Ionicons } from '@expo/vector-icons';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import NavigationBar from '../components/NavigationBar';
 import { PlayerArticle } from "../types/news";
+import { SafeAreaView } from 'react-native';
+
 const mockNews: PlayerArticle[] = require("../data/MockNews.json");
 
 const { width } = Dimensions.get("window");
@@ -33,22 +38,41 @@ const positionColors: Record<string, string> = {
   DST: "#374151",
 };
 
-// Mock list of your fantasy players - UPDATE THIS WITH YOUR ACTUAL PLAYERS
-const myPlayers = ["Patrick Mahomes", "Christian McCaffrey"];
-
 // SMMRY API configuration
 const SMMRY_API_KEY = "sk-smmry-4ed8bf901315e9f1990f6526220daf644db599f6b9944bf88adc4650d411a39f";
 const SMMRY_BASE_URL = "https://smmry.com";
 
-const NewsScreen: React.FC = () => {
+interface NewsScreenProps {
+  csvData?: any[];
+  setCsvData?: (data: any[]) => void;
+  onHomePress?: () => void;
+  onBookPress?: () => void;
+  onEyePress?: () => void;
+  onNavigateToHome?: () => void;
+}
+
+const NewsScreen: React.FC<NewsScreenProps> = ({ 
+  csvData,
+  setCsvData,
+  onHomePress, 
+  onBookPress, 
+  onEyePress,
+  onNavigateToHome 
+}) => {
   const [articles, setArticles] = useState<PlayerArticle[]>([]);
   const [expanded, setExpanded] = useState<string | null>(null);
   const [summaries, setSummaries] = useState<Record<string, string[]>>({});
   const [loadingSummaries, setLoadingSummaries] = useState<Record<string, boolean>>({});
   const [selectedFilter, setSelectedFilter] = useState<string>("All");
+  const [myPlayers, setMyPlayers] = useState<string[]>([]);
 
   // Filter options
- const filterOptions = ["All", "My Players", "QB", "RB", "WR", "TE", "K", "DEF", "FLEX"];
+  const filterOptions = ["All", "My Players", "QB", "RB", "WR", "TE", "K", "DEF", "FLEX"];
+
+  // Load roster data to determine "My Players"
+  useEffect(() => {
+    loadMyPlayers();
+  }, [csvData]);
 
   useEffect(() => {
     const fetchNews = async () => {
@@ -66,6 +90,67 @@ const NewsScreen: React.FC = () => {
     fetchNews();
   }, []);
 
+  const loadMyPlayers = async () => {
+    try {
+      let playersData: any[] | undefined = csvData;
+      
+      // If csvData not provided, try to load from AsyncStorage
+      if (!playersData || playersData.length === 0) {
+        const savedData = await AsyncStorage.getItem('rosterData');
+        if (savedData) {
+          playersData = JSON.parse(savedData);
+          if (setCsvData && playersData) {
+            setCsvData(playersData);
+          }
+        }
+      }
+
+      if (playersData && playersData.length > 0) {
+        const playerNames = playersData.map((player: any) => 
+          player.playerName || player.Player || ''
+        ).filter(Boolean);
+        setMyPlayers(playerNames);
+      }
+    } catch (error) {
+      console.error('Error loading my players:', error);
+    }
+  };
+
+  const handleImportRoster = () => {
+    if (onNavigateToHome) {
+      onNavigateToHome();
+    }
+  };
+
+  const handleClearData = async () => {
+    Alert.alert(
+      'Clear Roster',
+      'Are you sure you want to clear all roster data?',
+      [
+        {
+          text: 'Cancel',
+          style: 'cancel',
+        },
+        {
+          text: 'Clear',
+          style: 'destructive',
+          onPress: async () => {
+            try {
+              await AsyncStorage.removeItem('rosterData');
+              await AsyncStorage.removeItem('rosterFileName');
+              if (setCsvData) {
+                setCsvData([]);
+              }
+              setMyPlayers([]);
+            } catch (error) {
+              console.error('Error clearing data:', error);
+            }
+          },
+        },
+      ]
+    );
+  };
+
   // Helper function to get player position
   const getPlayerPosition = (playerName: string): string => {
     // You can expand this logic based on your actual data
@@ -76,8 +161,6 @@ const NewsScreen: React.FC = () => {
     // Default fallback - you'd implement proper position detection
     return "QB";
   };
-
-  // above is sample code need to implement a json search or sort
 
   // Helper function to calculate time ago
   const getTimeAgo = (dateString: string): string => {
@@ -329,12 +412,51 @@ const NewsScreen: React.FC = () => {
     );
   };
 
+  const renderEmptyMyPlayersState = () => (
+    <View style={styles.emptyContainer}>
+      <Ionicons name="newspaper-outline" size={80} color="#9ca3af" />
+      <Text style={styles.emptyTitle}>No Roster Data Found</Text>
+      <Text style={styles.emptySubtitle}>
+        Import your CSV roster to see personalized news for your players
+      </Text>
+      
+      <TouchableOpacity 
+        style={styles.importButton}
+        onPress={handleImportRoster}
+      >
+        <Ionicons name="download-outline" size={20} color="#fff" />
+        <Text style={styles.importButtonText}>Import Roster</Text>
+      </TouchableOpacity>
+    </View>
+  );
+
   return (
-    <SafeAreaView style={styles.container}>
+    <View style={styles.container}>
       {/* Header */}
       <View style={styles.header}>
+        <Image 
+          source={require('../assets/Logo.png')}
+          style={styles.logo} 
+        />
         <Text style={styles.headerTitle}>Fantasy News</Text>
-        <Text style={styles.updateCount}>{articles.length} updates</Text>
+        
+        {/* Header Actions */}
+        {myPlayers.length > 0 && (
+          <View style={styles.headerActions}>
+            <TouchableOpacity 
+              onPress={handleImportRoster}
+              style={styles.headerButton}
+            >
+              <Ionicons name="download-outline" size={20} color="#ffffff" />
+            </TouchableOpacity>
+            <TouchableOpacity 
+              onPress={handleClearData}
+              style={styles.headerButton}
+            >
+              <Ionicons name="trash-outline" size={20} color="#ef4444" />
+            </TouchableOpacity>
+          </View>
+        )}
       </View>
 
       {/* Filter Chips */}
@@ -348,7 +470,9 @@ const NewsScreen: React.FC = () => {
       </ScrollView>
 
       {/* News List */}
-      {filteredArticles.length === 0 ? (
+      {selectedFilter === "My Players" && myPlayers.length === 0 ? (
+        renderEmptyMyPlayersState()
+      ) : filteredArticles.length === 0 ? (
         <Text style={styles.emptyText}>No news available for this filter</Text>
       ) : (
         <FlatList
@@ -359,7 +483,14 @@ const NewsScreen: React.FC = () => {
           showsVerticalScrollIndicator={false}
         />
       )}
-    </SafeAreaView>
+
+      {/* Navigation Bar */}
+      <NavigationBar
+        onHomePress={onHomePress}
+        onBookPress={onBookPress}
+        onEyePress={onEyePress}
+      />
+    </View>
   );
 };
 
@@ -371,31 +502,47 @@ const styles = StyleSheet.create({
     backgroundColor: "#0f0f23",
   },
   header: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    paddingHorizontal: 20,
-    paddingTop: 20,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: 16,
+    paddingTop: 24,
     paddingBottom: 16,
   },
+  logo: {
+    width: 40,
+    height: 40,
+    resizeMode: 'contain',
+  },
   headerTitle: {
-    fontSize: 28,
-    fontWeight: "700",
-    color: "#ffffff",
+    fontSize: 24,
+    fontWeight: 'bold',
+    color: '#ffffff',
+    marginLeft: 12,
+    flex: 1,
+  },
+  headerActions: {
+    flexDirection: 'row',
+    gap: 12,
+  },
+  headerButton: {
+    padding: 8,
+    borderRadius: 8,
+    backgroundColor: 'rgba(255,255,255,0.1)',
   },
   updateCount: {
     fontSize: 14,
     color: "rgba(255,255,255,0.6)",
   },
   filterContainer: {
-  paddingHorizontal: 20,
-  marginBottom: 20,
-  maxHeight: 44, // NEW - Fixed height to prevent extension
-},
-filterContent: {
-  gap: 12,
-  paddingVertical: 0, // NEW - Remove vertical padding
-},
+    paddingHorizontal: 20,
+    marginBottom: 20,
+    maxHeight: 44,
+  },
+  filterContent: {
+    gap: 12,
+    paddingVertical: 0,
+  },
   filterChip: {
     backgroundColor: "rgba(255,255,255,0.1)",
     borderRadius: 20,
@@ -419,7 +566,7 @@ filterContent: {
   },
   listContainer: {
     paddingHorizontal: 16,
-    paddingBottom: 100,
+    paddingBottom: 120, // Increased to account for NavigationBar
   },
   card: {
     backgroundColor: "rgba(255,255,255,0.05)",
@@ -606,6 +753,40 @@ filterContent: {
     fontSize: 13,
     lineHeight: 18,
     marginBottom: 4,
+  },
+  emptyContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingHorizontal: 32,
+  },
+  emptyTitle: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    color: '#ffffff',
+    marginBottom: 8,
+    marginTop: 16,
+  },
+  emptySubtitle: {
+    fontSize: 16,
+    color: '#9ca3af',
+    textAlign: 'center',
+    lineHeight: 22,
+    marginBottom: 32,
+  },
+  importButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#0093D5',
+    paddingVertical: 12,
+    paddingHorizontal: 24,
+    borderRadius: 8,
+    gap: 8,
+  },
+  importButtonText: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: '600',
   },
   emptyText: {
     color: "rgba(255,255,255,0.5)",
