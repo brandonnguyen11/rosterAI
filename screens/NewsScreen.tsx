@@ -1,106 +1,153 @@
 import React, { useEffect, useState } from "react";
 import {
-  SafeAreaView,
   View,
   Text,
-  FlatList,
   StyleSheet,
+  FlatList,
+  Image,
   TouchableOpacity,
-  ScrollView
+  Linking,
+  Dimensions,
 } from "react-native";
-import { Ionicons } from "@expo/vector-icons";
-import sampleTeamData from "../utils/sampleTeam.json";
-import { mockFetchNewsForPlayer, NewsItem } from "../utils/mockNewsApi";
+import { PlayerArticle } from "../types/news";
+const mockNews: PlayerArticle[] = require("../data/MockNews.json");
 
-type Player = {
-  id: string;
-  name: string;
-  position: "QB" | "RB" | "WR" | "TE" | "K";
-  team: string;
-};
+const { width } = Dimensions.get("window");
 
-type PlayerNews = Player & { news: NewsItem[] };
-
-export default function NewsScreen() {
-  const [newsData, setNewsData] = useState<Record<string, PlayerNews>>({});
-  const [positionFilter, setPositionFilter] = useState<"ALL" | Player["position"]>("ALL");
-
-  const positions: Array<"ALL" | Player["position"]> = ["ALL", "QB", "RB", "WR", "TE", "K"];
+const NewsScreen: React.FC = () => {
+  const [articles, setArticles] = useState<PlayerArticle[]>([]);
+  const [expanded, setExpanded] = useState<string | null>(null);
 
   useEffect(() => {
-    const fetchAllNews = async () => {
-      const data: Record<string, PlayerNews> = {};
-      for (let player of sampleTeamData as Player[]) {
-        const news = await mockFetchNewsForPlayer(player.name);
-        data[player.id] = { ...player, news };
+    const fetchNews = async () => {
+      try {
+        // 🔹 replace this URL with your real endpoint later
+        const response = await fetch(
+          "https://raw.githubusercontent.com/your-repo/your-branch/mockNews.json"
+        );
+        const data: PlayerArticle[] = await response.json();
+        setArticles(data);
+      } catch (error) {
+        console.warn("Fetch failed, using mock data:", error);
+        setArticles(mockNews); // ✅ fallback to mock data
       }
-      setNewsData(data);
     };
-    fetchAllNews();
+
+    fetchNews();
   }, []);
 
-  const filteredPlayers = Object.values(newsData).filter(player =>
-    positionFilter === "ALL" ? true : player.position === positionFilter
-  );
+  const renderArticle = ({ item }: { item: PlayerArticle }) => {
+    const isExpanded = expanded === item.headline;
 
-  const renderNewsItem = (newsItems: NewsItem[], player: PlayerNews) => (
-    <View style={styles.newsRow}>
-      <Ionicons name="person-circle" size={40} color="#0b69ff" style={{ marginRight: 12 }} />
-      <View style={styles.newsBox}>
-        <Text style={styles.playerName}>{player.name} ({player.position})</Text>
-        {newsItems.map((item, index) => (
-          <Text key={index} style={styles.newsText}>• {item.title} ({item.source})</Text>
-        ))}
+    return (
+      <View style={styles.card}>
+        <Image source={{ uri: item.articleImage }} style={styles.image} />
+
+        <View style={styles.textBox}>
+          <Text style={styles.headline}>{item.headline}</Text>
+          <Text style={styles.meta}>
+            {item.playerName} • {item.teamName}
+          </Text>
+          <Text style={styles.meta}>
+            {item.source} • {item.date}
+          </Text>
+
+          <Text
+            numberOfLines={isExpanded ? undefined : 3}
+            style={styles.content}
+          >
+            {item.content}
+          </Text>
+
+          <TouchableOpacity
+            onPress={() => setExpanded(isExpanded ? null : item.headline)}
+          >
+            <Text style={styles.readMore}>
+              {isExpanded ? "Show Less" : "Read More"}
+            </Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity onPress={() => Linking.openURL(item.sourceLink)}>
+            <Text style={styles.link}>Go to source ↗</Text>
+          </TouchableOpacity>
+        </View>
       </View>
-    </View>
-  );
+    );
+  };
 
   return (
-    <SafeAreaView style={{ flex: 1 }}>
-      <ScrollView horizontal style={styles.filterBar} contentContainerStyle={{ paddingHorizontal: 8 }}>
-        {positions.map(pos => (
-          <TouchableOpacity
-            key={pos}
-            style={[styles.filterButton, positionFilter === pos && styles.filterActive]}
-            onPress={() => setPositionFilter(pos)}
-          >
-            <Text style={[styles.filterText, positionFilter === pos && styles.filterTextActive]}>{pos}</Text>
-          </TouchableOpacity>
-        ))}
-      </ScrollView>
-
-      <FlatList
-        data={filteredPlayers}
-        keyExtractor={(item) => item.id}
-        renderItem={({ item }) => renderNewsItem(item.news, item)}
-        contentContainerStyle={{ padding: 16 }}
-      />
-    </SafeAreaView>
+    <View style={styles.container}>
+      {articles.length === 0 ? (
+        <Text style={styles.empty}>No news available</Text>
+      ) : (
+        <FlatList
+          data={articles}
+          keyExtractor={(item) => item.headline}
+          renderItem={renderArticle}
+          contentContainerStyle={{ paddingBottom: 20 }}
+        />
+      )}
+    </View>
   );
-}
+};
+
+export default NewsScreen;
 
 const styles = StyleSheet.create({
-  filterBar: {
-    paddingVertical: 12,
-    borderBottomWidth: 1,
-    borderBottomColor: "#ddd",
-    backgroundColor: "#f9f9f9",
+  container: {
+    flex: 1,
+    backgroundColor: "#111",
+    padding: 10,
   },
-  filterButton: {
-    marginRight: 12,
-    paddingVertical: 6,
-    paddingHorizontal: 16,
-    borderRadius: 20,
-    backgroundColor: "#eee",
+  empty: {
+    color: "#aaa",
+    textAlign: "center",
+    marginTop: 20,
+    fontSize: 16,
   },
-  filterActive: {
-    backgroundColor: "#0b69ff",
+  card: {
+    backgroundColor: "#1e1e1e",
+    borderRadius: 12,
+    marginBottom: 16,
+    overflow: "hidden",
+    shadowColor: "#000",
+    shadowOpacity: 0.3,
+    shadowOffset: { width: 0, height: 2 },
+    shadowRadius: 5,
+    elevation: 4,
   },
-  filterText: { color: "#333", fontWeight: "600" },
-  filterTextActive: { color: "#fff" },
-
-  newsRow: { flexDirection: "row", marginBottom: 16, alignItems: "flex-start" },
-  newsBox: { flex: 1, backgroundColor: "#f1f1f1", padding: 12, borderRadius: 8 },
-  playerName: { fontWeight: "700", marginBottom: 6 },
-  newsText: { fontSize: 14, marginBottom: 4 }
+  image: {
+    width: "100%",
+    height: width * 0.5,
+    backgroundColor: "#000",
+  },
+  textBox: {
+    padding: 12,
+  },
+  headline: {
+    fontSize: 18,
+    fontWeight: "600",
+    color: "#fff",
+    marginBottom: 4,
+  },
+  meta: {
+    fontSize: 12,
+    color: "#aaa",
+    marginBottom: 2,
+  },
+  content: {
+    fontSize: 14,
+    color: "#ddd",
+    marginTop: 8,
+  },
+  readMore: {
+    color: "#00bfff",
+    fontSize: 14,
+    marginTop: 6,
+  },
+  link: {
+    color: "#ff6b6b",
+    fontSize: 14,
+    marginTop: 4,
+  },
 });
