@@ -22,9 +22,10 @@ export default function HomeScreen() {
       {/* Main content */}
       <View style={styles.content}>
         <TouchableOpacity style={styles.importButton} onPress={handleImportPress}>
-          <Ionicons name="cloud-download-outline" size={40} color="#fff" />
+          <Ionicons name="download-outline" size={80} color="#fff" />
         </TouchableOpacity>
-        <Text style={styles.importLabel}>Import roster as CSV</Text>
+        <Text style={styles.importLabel}>Import Roster</Text>
+        <Text style={styles.importLabel}>As CSV</Text>
       </View>
 
       {/* Navigation Bar */}
@@ -59,16 +60,21 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   importButton: {
-    width: 100,           // large round button
-    height: 100,
-    borderRadius: 50,     // makes it perfectly circular
-    backgroundColor: '#007AFF',
+    width: 200,           
+    height: 200,
+    borderRadius: 100,     // makes it perfectly circular
+    backgroundColor: '#0093D5',
     justifyContent: 'center',
     alignItems: 'center',
   },
   importLabel: {
     marginTop: 12,
-    fontSize: 14,
-    color: '#555',
+    fontSize: 24,
+    color: '#636363',
+    fontFamily: 'OpenSans-SemiBold', // semi-bold Open Sans
+    textAlign: 'center',              // center the text
+    lineHeight: 30,                   // spacing between lines
   },
+  
+  
 });
