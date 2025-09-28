@@ -21,6 +21,7 @@ const mockNews: PlayerArticle[] = require("../data/processedNewsSample.json").ar
 
 const { width } = Dimensions.get("window");
 
+
 // Enhanced availability colors
 const availabilityColors: Record<string, string> = {
   available: "#10b981",
@@ -55,34 +56,38 @@ const NewsScreen: React.FC<any> = ({ csvData, setCsvData, onHomePress, onBookPre
 
   // fetch news every launch
   useEffect(() => {
-  const fetchNews = async () => {
-    try {
-      const response = await fetch(
-        "https://raw.githubusercontent.com/your-repo/your-branch/processedNewsSample.json"
-      );
-      const data = await response.json();
+    const fetchFromPipeline = async () => {
+      try {
+        // normalize csvData into {name, team}
+        const playersPayload = (csvData || [])
+          .map((p: { playerName?: string; teamName?: string; Player?: string; Team?: string }) => ({
+            name: p.playerName || p.Player || "",
+            team: p.teamName || p.Team || "",
+          }))
+          .filter((p: { name: any; team: any; }) => p.name && p.team);
 
-      // map the JSON structure to PlayerArticle type
-      const mappedArticles: PlayerArticle[] = (data.articles || []).map((a: any) => ({
-        playerName: a.playerName,
-        teamName: a.teamName,
-        headline: a.articleTitle,      // map articleTitle -> headline
-        content: a.bodyText,           // map bodyText -> content
-        articleImage: a.articleImage || "https://via.placeholder.com/400", // placeholder if missing
-        playerImage: a.playerImage || "https://via.placeholder.com/50",     // placeholder if missing
-        availability: a.availability || "available",
-        sourceLink: a.sourceURL,       // map sourceURL -> sourceLink
-        sourceHost: a.sourceHost,
-        source: a.sourceHost,          // can reuse
-      }));
-
-      setArticles(mappedArticles.length ? mappedArticles : mockNews);
-    } catch {
-      setArticles(mockNews);
-    }
-  };
-  fetchNews();
-}, []);
+    
+        console.log("Sending to FastAPI:", playersPayload);
+    
+        const response = await fetch("http://10.90.116.164:8000/articles", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(playersPayload),
+        });
+    
+        const text = await response.json();
+        console.log("Raw response:", text);
+      
+        const data = JSON.parse(text); // parse manually
+        console.log("Pipeline response:", data);
+      } catch (err) {
+        console.error("Error fetching pipeline articles:", err);
+      }
+    };
+    
+    fetchFromPipeline();
+    }, [csvData]);
+    
 
 
   const loadMyPlayers = async () => {
