@@ -9,6 +9,8 @@ export interface PlayerArticle {
   sourceHost: string;
   sourceURL: string;
   bodyText: string;
+  sentiment: "Positive" | "Negative"
+  summary: string;
 }
 
 
