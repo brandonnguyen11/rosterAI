@@ -18,6 +18,44 @@ import { SafeAreaView } from 'react-native';
 
 const { width } = Dimensions.get("window");
 
+
+const playerImages: Record<string, any> = {
+  "Drake Maye": require("../assets/Drake Maye.jpg"),
+  "Breece Hall": require("../assets/Breece Hall.jpg"),
+  "Nick Chubb": require("../assets/Nick Chubb.jpg"),
+  "Zay Flowers": require("../assets/Zay Flowers.jpg"),
+  "Emeka Egbuka": require("../assets/Emeka Egbuka.jpg"),
+  "Brock Bowers": require("../assets/Brock Bowers.jpg"),
+  "Chris Olave": require("../assets/Chris Olave.jpg"),
+  "J.K. Dobbins": require("../assets/J.K. Dobbins.jpg"),
+  "Broncos": require("../assets/Broncos.png"),
+  "Jake Bates": require("../assets/Jake Bates.png"),
+  "CeeDee Lamb": require("../assets/CeeDee Lamb.png"),
+  "Khalil Shakir": require("../assets/Khalil Shakir.png"),
+  "Rhamondre Stevenson": require("../assets/Rhamondre Stevenson.png"),
+  "Braelon Allen": require("../assets/Braelon Allen.png"),
+  "Matthew Stafford": require("../assets/Matthew Stafford.png"),
+  "TreVeyon Henderson": require("../assets/TreVeyon Henderson.png"),
+  "Calvin Ridley": require("../assets/Calvin Ridley.png"),
+  "Caleb Williams": require("../assets/Caleb Williams.png"),
+  "Kenneth Walker III": require("../assets/Kenneth Walker.png"),
+  "Trey Benson": require("../assets/Trey Benson.png"),
+  "Justin Jefferson": require("../assets/Justin Jefferson.png"),
+  "A.J. Brown": require("../assets/A.J. Brown.jpg"),
+  "T.J. Hockenson": require("../assets/T.J. Hockenson.png"),
+  "Javonte Williams": require("../assets/Javonte Williams.png"),
+  "Tre Tucker": require("../assets/Tre Tucker.png"),
+  "Lions": require("../assets/Lions.png"),
+  "Ka'imi Fairbairn": require("../assets/Ka'imi Fairbairn.png"),
+  "Travis Hunter": require("../assets/Travis Hunter.png"),
+  "Dak Prescott": require("../assets/Dak Prescott.png"),
+  "Chig Okonkwo": require("../assets/Chig Okonkwno.png"),
+  "Rashod Bateman": require("../assets/Rashod Bateman.png"),
+  "Michael Wilson": require("../assets/Michael Wilson.png"),
+  "Jonnu Smith": require("../assets/Jonnu Smith.png"),
+  "Jaxson Dart": require("../assets/Jaxson Dart.png"),
+};
+
 // Enhanced availability colors
 const availabilityColors: Record<string, string> = {
   available: "#10b981",
@@ -181,11 +219,21 @@ const NewsScreen: React.FC<any> = ({ csvData, setCsvData, onHomePress, onBookPre
 
         <View style={styles.headerRow}>
           <View style={styles.playerSection}>
-            <View style={[styles.profileWrapper, { borderColor: sentimentColor || "#6b7280" }]}>
+          <View style={[styles.profileWrapper, { borderColor: "#6b7280" }]}>
+              {playerImages[item.playerName] ? (
+                <Image
+                  source={playerImages[item.playerName]}
+                  style={styles.profileImage}
+                />
+              ) : (
+                <View style={styles.profileImage} /> // fallback if image doesn't exist
+              )}
+
               <View style={[styles.positionBadge, { backgroundColor: positionColors[playerPosition] || "#374151" }]}>
                 <Text style={styles.positionText}>{playerPosition}</Text>
               </View>
             </View>
+
             <View style={styles.playerInfo}>
               <Text style={styles.playerName}>{item.playerName}</Text>
               <Text style={styles.teamName}>{item.teamName}</Text>
