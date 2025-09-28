@@ -69,7 +69,7 @@ export default function PlayerCard({ player, onStartPress, onSitPress }: PlayerC
     <View style={styles.card}>
       {/* Header */}
       <View style={styles.header}>
-      <View style={[styles.photoContainer]}>
+      <View style={[styles.photoContainer, { borderColor: player.teamColor }]}>
   {playerImages[player.playerName] ? (
     <Image
       source={playerImages[player.playerName]}
