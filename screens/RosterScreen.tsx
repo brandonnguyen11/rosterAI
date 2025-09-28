@@ -97,7 +97,7 @@ export default function RosterScreen({
         </View>
 
         <View style={styles.content}>
-          <View style={styles.headerLine} />
+         
 
           <View style={styles.summaryContainer}>
             <Text style={styles.summaryText}>
@@ -131,7 +131,7 @@ export default function RosterScreen({
                     <View style={styles.playerInfo}>
                       <Text style={styles.playerName}>{item.playerName || item.Player || 'Unknown Player'}</Text>
                       <Text style={styles.details}>
-                        {(item.Team || item.team || 'UNK')} • {(item.Opponent || item.opponent || 'vs TBD')}
+                        {(item.Team || item.team || 'UNK')} {(item.Opponent || item.opponent || 'vs TBD')}
                       </Text>
                     </View>
                   </View>
@@ -163,14 +163,14 @@ const styles = StyleSheet.create({
   summaryText: { fontSize: 14, color: '#FFFFFF', textAlign: 'center', fontFamily: "System" },
   sectionHeader: { marginTop: 16, marginBottom: 8 },
   subHeader: { fontSize: 20, fontWeight: '600', color: '#FFFFFF', fontFamily: "System", textAlign: 'left' },
-  playerCard: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', padding: 12, marginVertical: 6, backgroundColor: "rgba(255,255,255,0.05)", borderColor: "rgba(255,255,255,0.1)", borderRadius: 20, borderWidth: 1, shadowColor: '#000', shadowOpacity: 0.1, shadowRadius: 4, shadowOffset: { width: 0, height: 3 }, elevation: 3 },
+  playerCard: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', padding: 12, marginVertical: 6, backgroundColor: "1c1c1cff", borderColor: "rgba(255,255,255,0.1)", borderRadius: 20, borderWidth: 1, shadowColor: '#000', shadowOpacity: 0.1, shadowRadius: 4, shadowOffset: { width: 0, height: 3 }, elevation: 3 },
   playerLeft: { flexDirection: 'row', alignItems: 'center', flex: 1 },
   positionBadge: { paddingHorizontal: 8, paddingVertical: 4, borderRadius: 6, marginRight: 12, minWidth: 40, alignItems: 'center' },
   positionText: { color: '#fff', fontSize: 12, fontWeight: '600', fontFamily: "System" },
   playerInfo: { flex: 1 },
   playerName: { fontSize: 18, fontWeight: '600', color: '#FFFFFF', fontFamily: "System" },
-  details: { fontSize: 14, color: '#555', marginTop: 4, fontFamily: "System" },
-  projPoints: { fontSize: 20, fontWeight: '600', color: '#0093D5', textAlign: 'right', minWidth: 40, fontFamily: "System" },
+  details: { fontSize: 14, color: '#a7a6a6ff', marginTop: 4, fontFamily: "System" },
+  projPoints: { fontSize: 20, fontWeight: '600', color: '#8000ff', textAlign: 'right', minWidth: 40, fontFamily: "System" },
   listContainer: { paddingBottom: 100 },
   emptyContainer: { flex: 1, justifyContent: 'center', alignItems: 'center', paddingHorizontal: 32 },
   emptyText: { fontSize: 24, fontWeight: 'bold', color: '#636363', marginBottom: 8, marginTop: 16, textAlign: 'center', fontFamily: "System" },
