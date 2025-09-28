@@ -198,25 +198,26 @@ def match_titles_only(athletes, articles):
         if not matched_athletes:
             continue
 
-        body_text = get_article_body_text(art["url"])
+        body_text = get_article_body_text(art["url"]) or ""  # ensure string
 
         for athlete in matched_athletes:
             pub_date = art.get("date")
-            formatted_date = pub_date.strftime("%Y-%m-%d") if pub_date else None
+            formatted_date = pub_date.strftime("%Y-%m-%d") if pub_date else ""
             parsed_url = urlparse(art["url"])
             source_host = parsed_url.netloc.replace("www.", "") if parsed_url.netloc else ""
 
             results.append({
-                "teamName": athlete.get("team"),
-                "playerName": athlete["name"],
+                "teamName": athlete.get("team") or "",
+                "playerName": athlete["name"] or "",
                 "articleTitle": title,
-                "sourceURL": art["url"],
+                "sourceURL": art["url"] or "",
                 "sourceHost": source_host,
                 "date": formatted_date,
                 "bodyText": body_text
             })
 
     return results
+
 
 
 # Main function

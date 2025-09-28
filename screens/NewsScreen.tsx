@@ -74,11 +74,8 @@ const NewsScreen: React.FC<any> = ({ csvData, setCsvData, onHomePress, onBookPre
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(playersPayload),
         });
-    
-        const text = await response.json();
-        console.log("Raw response:", text);
-      
-        const data = JSON.parse(text); // parse manually
+        
+        const data = await response.json(); // already parsed
         console.log("Pipeline response:", data);
       } catch (err) {
         console.error("Error fetching pipeline articles:", err);
