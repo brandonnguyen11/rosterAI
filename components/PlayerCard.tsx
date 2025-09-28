@@ -1,5 +1,6 @@
 import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Image } from 'react-native';
+
 
 export interface PlayerCardData {
   playerName: string;
@@ -18,6 +19,44 @@ interface PlayerCardProps {
   onSitPress?: (player: PlayerCardData) => void;
 }
 
+const playerImages: Record<string, any> = {
+  "Drake Maye": require("../assets/Drake Maye.jpg"),
+  "Breece Hall": require("../assets/Breece Hall.jpg"),
+  "Nick Chubb": require("../assets/Nick Chubb.jpg"),
+  "Zay Flowers": require("../assets/Zay Flowers.jpg"),
+  "Emeka Egbuka": require("../assets/Emeka Egbuka.jpg"),
+  "Brock Bowers": require("../assets/Brock Bowers.jpg"),
+  "Chris Olave": require("../assets/Chris Olave.jpg"),
+  "J.K. Dobbins": require("../assets/J.K. Dobbins.jpg"),
+  "Broncos": require("../assets/Broncos.png"),
+  "Jake Bates": require("../assets/Jake Bates.png"),
+  "CeeDee Lamb": require("../assets/CeeDee Lamb.png"),
+  "Khalil Shakir": require("../assets/Khalil Shakir.png"),
+  "Rhamondre Stevenson": require("../assets/Rhamondre Stevenson.png"),
+  "Braelon Allen": require("../assets/Braelon Allen.png"),
+  "Matthew Stafford": require("../assets/Matthew Stafford.png"),
+  "TreVeyon Henderson": require("../assets/TreVeyon Henderson.png"),
+  "Calvin Ridley": require("../assets/Calvin Ridley.png"),
+  "Caleb Williams": require("../assets/Caleb Williams.png"),
+  "Kenneth Walker III": require("../assets/Kenneth Walker.png"),
+  "Trey Benson": require("../assets/Trey Benson.png"),
+  "Justin Jefferson": require("../assets/Justin Jefferson.png"),
+  "A.J. Brown": require("../assets/A.J. Brown.jpg"),
+  "T.J. Hockenson": require("../assets/T.J. Hockenson.png"),
+  "Javonte Williams": require("../assets/Javonte Williams.png"),
+  "Tre Tucker": require("../assets/Tre Tucker.png"),
+  "Lions": require("../assets/Lions.png"),
+  "Ka'imi Fairbairn": require("../assets/Ka'imi Fairbairn.png"),
+  "Travis Hunter": require("../assets/Travis Hunter.png"),
+  "Dak Prescott": require("../assets/Dak Prescott.png"),
+  "Chig Okonkwo": require("../assets/Chig Okonkwno.png"),
+  "Rashod Bateman": require("../assets/Rashod Bateman.png"),
+  "Michael Wilson": require("../assets/Michael Wilson.png"),
+  "Jonnu Smith": require("../assets/Jonnu Smith.png"),
+  "Jaxson Dart": require("../assets/Jaxson Dart.png"),
+};
+
+
 export default function PlayerCard({ player, onStartPress, onSitPress }: PlayerCardProps) {
   const getRecommendationStyle = (rec: string, isSelected: boolean) => {
     if (!isSelected) return { backgroundColor: '#374151', borderColor: '#4b5563', textColor: '#9ca3af' };
@@ -30,9 +69,16 @@ export default function PlayerCard({ player, onStartPress, onSitPress }: PlayerC
     <View style={styles.card}>
       {/* Header */}
       <View style={styles.header}>
-        <View style={styles.photoContainer}>
-          <View style={styles.playerPhoto} />
-        </View>
+      <View style={[styles.photoContainer]}>
+  {playerImages[player.playerName] ? (
+    <Image
+      source={playerImages[player.playerName]}
+      style={styles.playerPhoto}
+    />
+  ) : (
+    <View style={styles.playerPhoto} /> // fallback if image doesn't exist
+  )}
+</View>
         <Text style={styles.playerName}>{player.playerName}</Text>
         <View style={styles.matchupContainer}>
           <Text style={styles.matchupText}>vs {player.opponent || player.opponent}</Text>
@@ -113,8 +159,26 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between', // ensures bottom alignment
   },
   header: { padding: 20, paddingBottom: 16, alignItems: 'center' },
-  photoContainer: { position: 'relative', marginBottom: 16 },
-  playerPhoto: { width: 80, height: 80, borderRadius: 40, backgroundColor: '#22c55e' },
+  photoContainer: {
+    width: 120,
+    height: 120,
+    borderRadius: 60,
+    overflow: 'hidden',
+    marginBottom: 16,
+    borderWidth: 4,              // make the border thicker to show team color
+    borderColor: 'transparent',  // will override in JSX dynamically
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  
+  playerPhoto: {  
+    width: '100%',
+    height: '100%',
+    resizeMode: 'cover',
+    backgroundColor: '#1f2937',  // fallback if no image
+  },
+  
+  
   playerName: { color: '#fff', fontSize: 20, fontWeight: 'bold', marginBottom: 8, marginTop: 8, textAlign: 'center' },
   matchupContainer: { flexDirection: 'row', alignItems: 'center' },
   matchupText: { color: '#9ca3af', fontSize: 12 }, // "vs" stays gray
