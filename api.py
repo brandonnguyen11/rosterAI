@@ -85,9 +85,113 @@ def articles_with_analysis(athletes: List[Athlete]):
                 "sentiment": gemini_result.get("sentiment", "Positive"),
             })
 
+            with open("articlesEnhanced.json", "w", encoding="utf-8") as f:
+                json.dump({"articles": enriched_articles}, f, ensure_ascii=False, indent=2)
+
         return {"articles": enriched_articles}
 
     except Exception as e:
         return {"error": str(e)}
     finally:
         driver.quit()
+
+
+class Player(BaseModel):
+    name: str
+    team: str
+    pos: str
+    slot: str
+    opp: str
+    
+
+class PlayerInsightOutput(BaseModel):
+    playerName: str
+    team: str
+    pos: str
+    opp: str
+    recommendation: Literal["START", "SIT"]
+    confidence: int
+    insights: List[str]
+
+class PlayerInsightList(BaseModel):
+    players: List[PlayerInsightOutput]
+
+@app.post("/generate_insights", response_model=PlayerInsightList)
+@app.post("/generate_insights", response_model=PlayerInsightList)
+def generate_insights(players: List[Player]):
+    enriched_players = []
+
+    try:
+        with open("articlesEnhanced.json", "r", encoding="utf-8") as f:
+            all_articles = json.load(f).get("articles", [])
+    except Exception as e:
+        all_articles = []
+        print("Error loading articlesEnhanced.json:", e)
+
+    for player in players:
+        try:
+            player_articles = [a for a in all_articles if a.get("playerName") == player.name]
+            articles_json = json.dumps(player_articles, ensure_ascii=False)
+
+            prompt_text = (
+                f"Player: {player.name} ({player.team})\n"
+                f"Position: {player.pos}\n"
+                f"Slot: {player.slot}\n"
+                f"Opponent: {player.opp}\n\n"
+                f"Here are recent articles about this player:\n{articles_json}\n\n"
+                "Provide fantasy football advice in JSON with the following fields. Act as a Fantasy expert who is very knowledgable about Fantasy and Football. Try to give the best advice possible.\n"
+                "1) recommendation: 'START' or 'SIT'\n"
+                "2) confidence: an integer 0-100\n"
+                "3) insights: two-three sentences in a list describing key outlook. Each sentence MUST BE LESS THAN TEN WORDS.\n"
+            )
+
+            response = client.models.generate_content(
+                model="gemini-2.5-flash",
+                contents=prompt_text,
+                config={
+                    "response_mime_type": "application/json",
+                    "thinking_config": types.ThinkingConfig(thinking_budget=0),
+                },
+            )
+            print(response)
+            gemini_result = json.loads(response.text)
+
+            # Normalize fields
+            recommendation = gemini_result.get("recommendation", "SIT")
+            if recommendation not in ["START", "SIT"]:
+                recommendation = "SIT"
+
+            confidence = gemini_result.get("confidence", 70)
+            try:
+                confidence = int(confidence)
+            except:
+                confidence = 70
+
+            insights = gemini_result.get("insights", [])
+            if isinstance(insights, str):
+                insights = [insights]
+            elif not isinstance(insights, list):
+                insights = []
+
+            enriched_players.append({
+                "playerName": player.name,
+                "team": player.team,
+                "pos": player.pos,
+                "opp": player.opp,
+                "recommendation": recommendation,
+                "confidence": confidence,
+                "insights": insights,
+            })
+
+        except Exception as e:
+            enriched_players.append({
+                "playerName": player.name,
+                "team": player.team,
+                "pos": player.pos,
+                "opp": player.opp,
+                "recommendation": "SIT",
+                "confidence": 70,
+                "insights": [f"Error generating insights: {str(e)}"],
+            })
+
+    return {"players": enriched_players}
