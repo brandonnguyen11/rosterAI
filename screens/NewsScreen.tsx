@@ -69,7 +69,7 @@ const NewsScreen: React.FC<any> = ({ csvData, setCsvData, onHomePress, onBookPre
   
         console.log("Sending to FastAPI:", playersPayload);
   
-        const response = await fetch("http://10.90.116.164:8000/articles", {
+        const response = await fetch("http://10.136.23.40:8000/articles", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(playersPayload),
