@@ -163,7 +163,7 @@ const styles = StyleSheet.create({
   summaryText: { fontSize: 14, color: '#FFFFFF', textAlign: 'center', fontFamily: "System" },
   sectionHeader: { marginTop: 16, marginBottom: 8 },
   subHeader: { fontSize: 20, fontWeight: '600', color: '#FFFFFF', fontFamily: "System", textAlign: 'left' },
-  playerCard: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', padding: 12, marginVertical: 6, backgroundColor: "1c1c1cff", borderColor: "rgba(255,255,255,0.1)", borderRadius: 20, borderWidth: 1, shadowColor: '#000', shadowOpacity: 0.1, shadowRadius: 4, shadowOffset: { width: 0, height: 3 }, elevation: 3 },
+  playerCard: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', padding: 12, marginVertical: 6, backgroundColor: "rgba(255,255,255,0.05)", borderColor: "rgba(255,255,255,0.1)", borderRadius: 20, borderWidth: 1, shadowColor: '#000', shadowOpacity: 0.1, shadowRadius: 4, shadowOffset: { width: 0, height: 3 }, elevation: 3 },
   playerLeft: { flexDirection: 'row', alignItems: 'center', flex: 1 },
   positionBadge: { paddingHorizontal: 8, paddingVertical: 4, borderRadius: 6, marginRight: 12, minWidth: 40, alignItems: 'center' },
   positionText: { color: '#fff', fontSize: 12, fontWeight: '600', fontFamily: "System" },
