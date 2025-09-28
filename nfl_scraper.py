@@ -184,21 +184,27 @@ def get_article_body_text(url):
 # Match athlete names and save results to JSON
 def match_titles_only(athletes, articles):
     results = []
-    athlete_patterns = [
-        (athlete, re.compile(r"\b" + re.escape(athlete["name"]) + r"\b", flags=re.IGNORECASE))
-        for athlete in athletes
-    ]
+
+    # Precompile regex patterns for each athlete
+    athlete_patterns = []
+    for athlete in athletes:
+        # Escape the name, then allow spaces, hyphens, or apostrophes between words
+        name_regex = re.escape(athlete["name"]).replace(r"\ ", r"(?:\s+|[-'])")
+        pattern = re.compile(name_regex, flags=re.IGNORECASE)
+        athlete_patterns.append((athlete, pattern))
 
     for art in articles:
         title = art.get("title", "")
         if not title:
             continue
 
+        # Find all athletes mentioned in the title
         matched_athletes = [athlete for athlete, pattern in athlete_patterns if pattern.search(title)]
         if not matched_athletes:
             continue
 
-        body_text = get_article_body_text(art["url"]) or ""  # ensure string
+        # Get body text safely
+        body_text = get_article_body_text(art["url"]) or ""
 
         for athlete in matched_athletes:
             pub_date = art.get("date")
