@@ -15,6 +15,7 @@ import { Ionicons } from "@expo/vector-icons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import NavigationBar from "../components/NavigationBar";
 import { PlayerArticle } from "../types/news";
+import { SafeAreaView } from 'react-native';
 
 // require mock data
 const mockNews: PlayerArticle[] = require("../data/processedNewsSample.json").articles;
@@ -271,7 +272,7 @@ const NewsScreen: React.FC<any> = ({ csvData, setCsvData, onHomePress, onBookPre
 };
 
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={styles.container}>
       <View style={styles.header}>
         <Image source={require("../assets/Logo.png")} style={styles.logo} />
         <Text style={styles.headerTitle}>Fantasy News</Text>
@@ -294,7 +295,7 @@ const NewsScreen: React.FC<any> = ({ csvData, setCsvData, onHomePress, onBookPre
       )}
       {/* Navigation Bar */}
       <NavigationBar onHomePress={onHomePress} onBookPress={onBookPress} onEyePress={onEyePress} />
-    </View>
+    </SafeAreaView>
 
   );
 };
