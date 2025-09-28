@@ -122,7 +122,7 @@ export default function RosterScreen({
             onPress={handleImportNew}
             style={styles.headerButton}
           >
-            <Ionicons name="download-outline" size={20} color="#0093D5" />
+            <Ionicons name="download-outline" size={20} color="#6dff01" />
           </TouchableOpacity>
           <TouchableOpacity 
             onPress={handleClearData}
@@ -215,19 +215,22 @@ const styles = StyleSheet.create({
     resizeMode: 'contain',
   },
   headerTitle: {
-    fontSize: 24,
+    fontSize: 35,
+    fontFamily: "System",
+    letterSpacing: -1,
     fontWeight: 'bold',
-    color: '#FFFFFF',
+    color: '#ffffff',
     marginLeft: 12,
     flex: 1,
   },
+
   headerActions: {
     flexDirection: 'row',
     gap: 12,
   },
   headerButton: {
     padding: 8,
-    backgroundColor: "rgba(255,255,255,0.05)",
+    backgroundColor: "#1c1c1cff",
     borderColor: "rgba(255,255,255,0.1)",
     borderRadius: 20,
     borderWidth: 1,
@@ -251,6 +254,7 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: '#FFFFFF',
     textAlign: 'center',
+    fontFamily: "System",
   },
   sectionHeader: {
     marginTop: 16,
@@ -260,6 +264,7 @@ const styles = StyleSheet.create({
     fontSize: 20,
     fontWeight: '600',
     color: '#FFFFFF',
+    fontFamily: "System",
     textAlign: 'left',
   },
   playerCard: {
@@ -296,6 +301,7 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontSize: 12,
     fontWeight: '600',
+    fontFamily: "System",
   },
   playerInfo: {
     flex: 1,
@@ -304,11 +310,13 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: '600',
     color: '#FFFFFF',
+    fontFamily: "System",
   },
   details: {
     fontSize: 14,
     color: '#555',
     marginTop: 4,
+    fontFamily: "System",
   },
   projPoints: {
     fontSize: 20,
@@ -316,6 +324,7 @@ const styles = StyleSheet.create({
     color: '#0093D5',
     textAlign: 'right',
     minWidth: 40,
+    fontFamily: "System",
   },
   listContainer: {
     paddingBottom: 100, // Space for navigation bar
@@ -333,6 +342,7 @@ const styles = StyleSheet.create({
     marginBottom: 8,
     marginTop: 16,
     textAlign: 'center',
+    fontFamily: "System",
   },
   emptySubtext: {
     fontSize: 16,
@@ -340,6 +350,7 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     lineHeight: 22,
     marginBottom: 32,
+    fontFamily: "System",
   },
   importButton: {
     flexDirection: 'row',
@@ -354,5 +365,6 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontSize: 16,
     fontWeight: '600',
+    fontFamily: "System",
   },
 });

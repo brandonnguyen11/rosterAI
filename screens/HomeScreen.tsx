@@ -173,7 +173,7 @@ export default function HomeScreen({
           source={require('../assets/Logo.png')}
           style={styles.logo} 
         />
-        <Text style={styles.headerTitle}>Fantasy Hub</Text>
+        <Text style={styles.headerTitle}>ROSTERAI</Text>
       </View>
 
       {/* Main content */}
@@ -206,11 +206,12 @@ export default function HomeScreen({
             </View>
         
         ) : (
-          // User has data - show roster status and options
+          // User has data - show roster status and options  //#6dff01
           <>
             <View style={styles.statusContainer}>
               <Ionicons name="checkmark-circle" size={80} color="#10b981" />
-              <Text style={styles.statusTitle}>Roster Loaded</Text>
+             
+              <Text style={styles.statusTitle}>Roster Loaded!</Text>
               <Text style={styles.statusSubtitle}>
                 {csvData.length} players from {fileUri}
               </Text>
@@ -229,7 +230,7 @@ export default function HomeScreen({
                 style={styles.secondaryActionButton}
                 onPress={handleImportNew}
               >
-                <Ionicons name="download-outline" size={20} color="#0093D5" />
+                <Ionicons name="download-outline" size={20} color="#ffffffff" />
                 <Text style={styles.secondaryActionButtonText}>Import New</Text>
               </TouchableOpacity>
               
@@ -273,7 +274,9 @@ const styles = StyleSheet.create({
     resizeMode: 'contain',
   },
   headerTitle: {
-    fontSize: 24,
+    fontSize: 35,
+    fontFamily: "System",
+    letterSpacing: -1,
     fontWeight: 'bold',
     color: '#ffffff',
     marginLeft: 12,
@@ -288,17 +291,17 @@ const styles = StyleSheet.create({
   importButton: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#0093D5',
+    backgroundColor: '#8000ff',
     paddingVertical: 12,
     paddingHorizontal: 24,
-    borderRadius: 8,
+    borderRadius: 30,
     gap: 8,
   },
   importLabel: {
     marginTop: 12,
     fontSize: 24,
     color: '#636363',
-    fontFamily: 'OpenSans-SemiBold',
+    fontFamily: "System",
     textAlign: 'center',
     lineHeight: 30,
   },
@@ -312,54 +315,59 @@ const styles = StyleSheet.create({
     color: '#10b981',
     marginTop: 16,
     textAlign: 'center',
+    fontFamily: "System",
   },
   statusSubtitle: {
     fontSize: 16,
-    color: '#636363',
+    color: '#a7a6a6ff',
     marginTop: 8,
     textAlign: 'center',
+    fontFamily: "System",
   },
   actionButtonsContainer: {
-    width: '100%',
+    width: '60%',
     gap: 16,
   },
   primaryActionButton: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#0093D5',
+    backgroundColor: '#8000ff',
     paddingVertical: 16,
     paddingHorizontal: 24,
-    borderRadius: 12,
+    borderRadius: 30,
     gap: 8,
   },
   primaryActionButtonText: {
     color: '#fff',
-    fontSize: 18,
-    fontWeight: '600',
+    fontSize: 15,
+    fontWeight: '500',
+    fontFamily: "System",
   },
   secondaryActionButton: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: 'transparent',
+    backgroundColor: '#1c1c1cff',
     paddingVertical: 12,
     paddingHorizontal: 24,
-    borderRadius: 12,
+    borderRadius: 30,
     borderWidth: 1.5,
-    borderColor: '#e5e7eb',
+    borderColor: '#1c1c1cff',
     gap: 8,
   },
   secondaryActionButtonText: {
-    color: '#0093D5',
+    color: '#ffffffff',
     fontSize: 16,
     fontWeight: '500',
+    fontFamily: "System",
   },
   emptyContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
     paddingHorizontal: 32,
+
   },emptyText: {
     fontSize: 24,
     fontWeight: 'bold',
@@ -367,17 +375,22 @@ const styles = StyleSheet.create({
     marginBottom: 8,
     marginTop: 16,
     textAlign: 'center',
+    fontFamily: "System",
   },
   emptySubtext: {
     fontSize: 16,
-    color: '#9ca3af',
+    color: '#a7a6a6ff',
+    marginTop: 8,
     textAlign: 'center',
     lineHeight: 22,
     marginBottom: 32,
+    fontFamily: "System",
+
   },
   importButtonText: {
     color: '#fff',
-    fontSize: 16,
-    fontWeight: '600',
+    fontSize: 15,
+    fontWeight: '500',
+    fontFamily: "System",
   },
 });

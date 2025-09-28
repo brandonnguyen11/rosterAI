@@ -37,7 +37,7 @@ export default function NavigationBar({
       bottom: 0,
       width: '100%',
       flexDirection: 'row',
-      backgroundColor: "#1b1b2e",
+      backgroundColor: "#0f0f23",
       height: 60, // will be overridden dynamically
       justifyContent: 'space-around',
       alignItems: 'center',
