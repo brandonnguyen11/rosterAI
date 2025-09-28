@@ -4,15 +4,11 @@
 export interface PlayerArticle {
   playerName: string;
   teamName: string;
-  articleImage: string;
-  playerImage: string;       // ✅ new field
-  availability: "available" | "questionable" | "out"; // ✅ new field
   date: string;
-  headline: string;
-  source: string;
-  sourceLink: string;
-  content: string;
-  sourceHost: string; // <-- add this
+  articleTitle: string;
+  sourceHost: string;
+  sourceURL: string;
+  bodyText: string;
 }
 
 
