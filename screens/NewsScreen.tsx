@@ -44,7 +44,7 @@ const NewsScreen: React.FC<any> = ({ csvData, setCsvData, onHomePress, onBookPre
   // Track which article summaries are shown
   const [summaryVisible, setSummaryVisible] = useState<Record<string, boolean>>({});
 
-  const filterOptions = ["All", "My Players", "QB", "RB", "WR", "TE", "K", "DEF", "FLEX"];
+  const filterOptions = ["All", "QB", "RB", "WR", "TE", "K", "D/ST", "FLEX"];
 
   useEffect(() => {
     loadMyPlayers();
@@ -103,11 +103,34 @@ const NewsScreen: React.FC<any> = ({ csvData, setCsvData, onHomePress, onBookPre
   };
 
   const getPlayerPosition = (playerName: string): string => {
-    if (playerName.includes("Mahomes")) return "QB";
-    if (playerName.includes("McCaffrey")) return "RB";
-    if (playerName.includes("Jefferson")) return "WR";
-    if (playerName.includes("Kelce")) return "TE";
-    return "QB";
+    if (!csvData || csvData.length === 0) return "UNK";
+  
+    // Try to find a matching player in CSV
+    const match = csvData.find(
+      (p: any) =>
+        p.playerName === playerName ||
+        p.Player === playerName
+    );
+  
+    if (!match) return "UNK";
+  
+    // Handle different possible field names
+    const rawPos =
+      match.position ||
+      match.POS ||
+      match.pos ||
+      match.Slot ||
+      match.slot ||
+      match.Position ||
+      "UNK";
+  
+    // Normalize common variants → QB, RB, WR, TE, K, DEF, FLEX
+    const normalized = rawPos.toUpperCase();
+    if (["QB", "RB", "WR", "TE", "K", "D/ST", "DEF", "FLEX"].includes(normalized)) {
+      return normalized;
+    }
+  
+    return "UNK";
   };
 
   const getTimeAgo = (dateString: string): string => {
@@ -254,11 +277,38 @@ const styles = StyleSheet.create({
   header: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", paddingHorizontal: 16, paddingTop: 24, paddingBottom: 16 },
   logo: { width: 40, height: 40, resizeMode: "contain" },
   headerTitle: { fontSize: 24, fontWeight: "bold", color: "#ffffff", marginLeft: 12, flex: 1 },
-  filterContainer: { paddingHorizontal: 20, marginBottom: 20, maxHeight: 44 },
-  filterChip: { backgroundColor: "rgba(255,255,255,0.1)", borderRadius: 20, paddingHorizontal: 16, paddingVertical: 10, borderWidth: 1, alignItems: "center", borderColor: "rgba(255,255,255,0.2)" },
-  activeFilterChip: { backgroundColor: "#4f46e5", borderColor: "#4f46e5" },
-  filterChipText: { color: "rgba(255,255,255,0.8)", fontSize: 14, fontWeight: "500" },
-  activeFilterChipText: { color: "#ffffff" },
+  filterContainer: { 
+    paddingHorizontal: 20, 
+    paddingVertical: 6,
+    marginBottom: 20, 
+    height: 60,  
+    maxHeight: 60, 
+  },
+  
+  
+  filterChip: { 
+    backgroundColor: "rgba(255,255,255,0.1)", 
+    borderRadius: 20, 
+    paddingHorizontal: 18,   // slightly wider
+    paddingVertical: 10,     // taller so text isn’t squished
+    borderWidth: 1, 
+    maxHeight: 60, 
+    justifyContent: "center", // center vertically
+    alignItems: "center", 
+    borderColor: "rgba(255,255,255,0.2)", 
+    marginRight: 10,          // extra spacing
+  },
+  
+    activeFilterChip: { backgroundColor: "#4f46e5", borderColor: "#4f46e5" },
+    filterChipText: { 
+      color: "rgba(255,255,255,0.8)", 
+      fontSize: 15,             // bump font size slightly
+      fontWeight: "500", 
+      lineHeight: 18,           // keep line height balanced
+      flexShrink: 1, 
+    },
+    
+      activeFilterChipText: { color: "#ffffff" },
   listContainer: { paddingHorizontal: 16, paddingBottom: 120 },
   card: { backgroundColor: "rgba(255,255,255,0.05)", borderRadius: 20, marginBottom: 16, overflow: "hidden", borderWidth: 1, borderColor: "rgba(255,255,255,0.1)" },
   myPlayerCard: { borderColor: "rgba(16,185,129,0.4)", backgroundColor: "rgba(16,185,129,0.05)" },
