@@ -11,17 +11,12 @@ import {
   ScrollView,
   Alert,
 } from "react-native";
-import { Ionicons } from "@expo/vector-icons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import NavigationBar from "../components/NavigationBar";
 import { PlayerArticle } from "../types/news";
 import { SafeAreaView } from 'react-native';
 
-// require mock data
-//const mockNews: PlayerArticle[] = require("../data/processedNewsSample.json").articles;
-
 const { width } = Dimensions.get("window");
-
 
 // Enhanced availability colors
 const availabilityColors: Record<string, string> = {
@@ -43,69 +38,57 @@ const positionColors: Record<string, string> = {
 const NewsScreen: React.FC<any> = ({ csvData, setCsvData, onHomePress, onBookPress, onEyePress, onNavigateToHome }) => {
   const [articles, setArticles] = useState<PlayerArticle[]>([]);
   const [expanded, setExpanded] = useState<string | null>(null);
-  const [summaries, setSummaries] = useState<Record<string, string[]>>({});
-  const [loadingSummaries, setLoadingSummaries] = useState<Record<string, boolean>>({});
   const [selectedFilter, setSelectedFilter] = useState<string>("All");
   const [myPlayers, setMyPlayers] = useState<string[]>([]);
+  
+  // Track which article summaries are shown
+  const [summaryVisible, setSummaryVisible] = useState<Record<string, boolean>>({});
 
   const filterOptions = ["All", "My Players", "QB", "RB", "WR", "TE", "K", "DEF", "FLEX"];
 
-  // load "My Players"
   useEffect(() => {
     loadMyPlayers();
   }, [csvData]);
 
-  // fetch news every launch
   useEffect(() => {
     const fetchFromPipeline = async () => {
       try {
-        // normalize csvData into {name, team}
         const playersPayload = (csvData || [])
           .map((p: { playerName?: string; teamName?: string; Player?: string; Team?: string }) => ({
             name: p.playerName || p.Player || "",
             team: p.teamName || p.Team || "",
           }))
           .filter((p: { name: any; team: any }) => p.name && p.team);
-  
-        console.log("Sending to FastAPI:", playersPayload);
-  
-        const response = await fetch("http://10.90.116.164:8000/articles", {
+
+        const response = await fetch("http://10.90.116.164:8000/articles_with_analysis", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(playersPayload),
         });
-  
-        const data = await response.json(); // already parsed
-        console.log("Pipeline response:", data);
-  
-        // Update state with the fetched articles
+
+        const data = await response.json();
+
         if (data.articles && Array.isArray(data.articles)) {
           setArticles(data.articles);
         } else {
-          console.warn("No articles returned from pipeline");
           setArticles([]);
         }
       } catch (err) {
         console.error("Error fetching pipeline articles:", err);
-        setArticles([]); // clear articles on error
+        setArticles([]);
       }
     };
-  
+
     fetchFromPipeline();
   }, [csvData]);
-    
-
 
   const loadMyPlayers = async () => {
     try {
       let playersData: any[] | undefined = csvData;
-
       if (!playersData || playersData.length === 0) {
         const savedData = await AsyncStorage.getItem("rosterData");
-        if (savedData) {
-          playersData = JSON.parse(savedData);
-          if (setCsvData && playersData) setCsvData(playersData);
-        }
+        if (savedData) playersData = JSON.parse(savedData);
+        if (setCsvData && playersData) setCsvData(playersData);
       }
 
       if (playersData && playersData.length > 0) {
@@ -117,30 +100,6 @@ const NewsScreen: React.FC<any> = ({ csvData, setCsvData, onHomePress, onBookPre
     } catch (error) {
       console.error("Error loading my players:", error);
     }
-  };
-
-  const handleImportRoster = () => {
-    if (onNavigateToHome) onNavigateToHome();
-  };
-
-  const handleClearData = async () => {
-    Alert.alert("Clear Roster", "Are you sure you want to clear all roster data?", [
-      { text: "Cancel", style: "cancel" },
-      {
-        text: "Clear",
-        style: "destructive",
-        onPress: async () => {
-          try {
-            await AsyncStorage.removeItem("rosterData");
-            await AsyncStorage.removeItem("rosterFileName");
-            if (setCsvData) setCsvData([]);
-            setMyPlayers([]);
-          } catch (error) {
-            console.error("Error clearing data:", error);
-          }
-        },
-      },
-    ]);
   };
 
   const getPlayerPosition = (playerName: string): string => {
@@ -162,8 +121,6 @@ const NewsScreen: React.FC<any> = ({ csvData, setCsvData, onHomePress, onBookPre
     return `${Math.floor(diffInMinutes / 1440)}d ago`;
   };
 
-  
-
   const filteredArticles = articles.filter((article) => {
     if (selectedFilter === "All") return true;
     if (selectedFilter === "My Players") return myPlayers.includes(article.playerName);
@@ -183,85 +140,81 @@ const NewsScreen: React.FC<any> = ({ csvData, setCsvData, onHomePress, onBookPre
   );
 
   const renderArticle = ({ item }: { item: PlayerArticle }) => {
-  const isExpanded = expanded === item.articleTitle;
-  const bulletSummary = summaries[item.articleTitle] || [];
-  const isLoadingSummary = loadingSummaries[item.articleTitle] || false;
-  const isMyPlayer = myPlayers.includes(item.playerName);
-  const playerPosition = getPlayerPosition(item.playerName);
-  const timeAgo = getTimeAgo(item.date);
+    const isExpanded = expanded === item.articleTitle;
+    const isMyPlayer = myPlayers.includes(item.playerName);
+    const playerPosition = getPlayerPosition(item.playerName);
+    const timeAgo = getTimeAgo(item.date);
+    const sentimentColor = item.sentiment === "Positive" ? "#10b981" : "#ef4444";
+    const sentimentLabel = item.sentiment || "N/A";
+    const showSummary = summaryVisible[item.articleTitle] || false;
 
-  return (
-    <View style={[styles.card, isMyPlayer && styles.myPlayerCard]}>
-      {/* Star sparkle */}
-      <Image
-        source={require("../assets/summarize.png")}
-        style={styles.summarize}
-      />
+    return (
+      <View style={[styles.card, isMyPlayer && styles.myPlayerCard, { borderColor: sentimentColor }]}>
+        {isMyPlayer && (
+          <View style={[styles.myPlayerBadge, { backgroundColor: sentimentColor }]}>
+            <Text style={styles.myPlayerBadgeText}>{sentimentLabel}</Text>
+          </View>
+        )}
 
-      {isMyPlayer && (
-        <View style={styles.myPlayerBadge}>
-          <Text style={styles.myPlayerBadgeText}>MY PLAYER</Text>
-        </View>
-      )}
-      <View style={styles.headerRow}>
-        <View style={styles.playerSection}>
-          <View
-            style={[
-              styles.profileWrapper,
-              { borderColor: availabilityColors["available"] || "#6b7280" },
-            ]}
-          >
-            <View
-              style={[
-                styles.positionBadge,
-                { backgroundColor: positionColors[playerPosition] || "#374151" },
-              ]}
-            >
-              <Text style={styles.positionText}>{playerPosition}</Text>
+        <View style={styles.headerRow}>
+          <View style={styles.playerSection}>
+            <View style={[styles.profileWrapper, { borderColor: sentimentColor || "#6b7280" }]}>
+              <View style={[styles.positionBadge, { backgroundColor: positionColors[playerPosition] || "#374151" }]}>
+                <Text style={styles.positionText}>{playerPosition}</Text>
+              </View>
+            </View>
+            <View style={styles.playerInfo}>
+              <Text style={styles.playerName}>{item.playerName}</Text>
+              <Text style={styles.teamName}>{item.teamName}</Text>
+              <View style={styles.statusRow}>
+                <View style={[styles.statusDot, { backgroundColor: availabilityColors["available"] }]} />
+                <Text style={styles.statusText}>Active</Text>
+              </View>
             </View>
           </View>
-          <View style={styles.playerInfo}>
-            <Text style={styles.playerName}>{item.playerName}</Text>
-            <Text style={styles.teamName}>{item.teamName}</Text>
-            <View style={styles.statusRow}>
-              <View
-                style={[
-                  styles.statusDot,
-                  { backgroundColor: availabilityColors["available"] },
-                ]}
-              />
-              <Text style={styles.statusText}>
-                {"available" === "available" && "Active"}
-              </Text>
-            </View>
-          </View>
+          <Text style={styles.timeStamp}>{timeAgo}</Text>
         </View>
-        <Text style={styles.timeStamp}>{timeAgo}</Text>
-      </View>
-      <View style={styles.contentSection}>
-        <Text style={styles.headline}>{item.articleTitle}</Text>
-        <Text numberOfLines={isExpanded ? undefined : 3} style={styles.content}>
-          {item.bodyText}
-        </Text>
-        <TouchableOpacity
-          onPress={() => setExpanded(isExpanded ? null : item.articleTitle)}
-        >
-          <Text style={styles.readMore}>
-            {isExpanded ? "Show Less" : "Read More"}
+
+        <View style={styles.contentSection}>
+          <Text style={styles.headline}>{item.articleTitle}</Text>
+          <Text numberOfLines={isExpanded ? undefined : 3} style={styles.content}>
+            {item.bodyText}
           </Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          onPress={() => Linking.openURL(item.sourceURL)}
-          style={styles.sourceContainer}
-        >
-          <Text style={styles.sourceLink}>
-            {item.sourceHost} →
-          </Text>
-        </TouchableOpacity>
+          <TouchableOpacity onPress={() => setExpanded(isExpanded ? null : item.articleTitle)}>
+            <Text style={styles.readMore}>{isExpanded ? "Show Less" : "Read More"}</Text>
+          </TouchableOpacity>
+
+          {item.summary && (
+            <>
+              <TouchableOpacity
+                onPress={() =>
+                  setSummaryVisible((prev) => ({
+                    ...prev,
+                    [item.articleTitle]: !prev[item.articleTitle],
+                  }))
+                }
+              >
+                <Text style={[styles.readMore, { color: "#10b981" }]}>
+                  {showSummary ? "Hide Summary" : "Show Summary"}
+                </Text>
+              </TouchableOpacity>
+              {showSummary && (
+                <View style={{ marginTop: 8 }}>
+                  <Text style={{ color: "#ffffff", fontSize: 14, lineHeight: 20 }}>
+                    {item.summary}
+                  </Text>
+                </View>
+              )}
+            </>
+          )}
+
+          <TouchableOpacity onPress={() => Linking.openURL(item.sourceURL)} style={styles.sourceContainer}>
+            <Text style={styles.sourceLink}>{item.sourceHost} →</Text>
+          </TouchableOpacity>
+        </View>
       </View>
-    </View>
-  );
-};
+    );
+  };
 
   return (
     <SafeAreaView style={styles.container}>
@@ -285,14 +238,16 @@ const NewsScreen: React.FC<any> = ({ csvData, setCsvData, onHomePress, onBookPre
           showsVerticalScrollIndicator={false}
         />
       )}
-      {/* Navigation Bar */}
+
       <NavigationBar onHomePress={onHomePress} onBookPress={onBookPress} onEyePress={onEyePress} />
     </SafeAreaView>
-
   );
 };
 
 export default NewsScreen;
+
+// ... styles remain the same
+
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: "#0f0f23" },
