@@ -17,7 +17,7 @@ import NavigationBar from "../components/NavigationBar";
 import { PlayerArticle } from "../types/news";
 
 // require mock data
-const mockNews: PlayerArticle[] = require("../data/processedNewsSample.json").articles;
+//const mockNews: PlayerArticle[] = require("../data/processedNewsSample.json").articles;
 
 const { width } = Dimensions.get("window");
 
@@ -64,26 +64,34 @@ const NewsScreen: React.FC<any> = ({ csvData, setCsvData, onHomePress, onBookPre
             name: p.playerName || p.Player || "",
             team: p.teamName || p.Team || "",
           }))
-          .filter((p: { name: any; team: any; }) => p.name && p.team);
-
-    
+          .filter((p: { name: any; team: any }) => p.name && p.team);
+  
         console.log("Sending to FastAPI:", playersPayload);
-    
+  
         const response = await fetch("http://10.90.116.164:8000/articles", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(playersPayload),
         });
-        
+  
         const data = await response.json(); // already parsed
         console.log("Pipeline response:", data);
+  
+        // Update state with the fetched articles
+        if (data.articles && Array.isArray(data.articles)) {
+          setArticles(data.articles);
+        } else {
+          console.warn("No articles returned from pipeline");
+          setArticles([]);
+        }
       } catch (err) {
         console.error("Error fetching pipeline articles:", err);
+        setArticles([]); // clear articles on error
       }
     };
-    
+  
     fetchFromPipeline();
-    }, [csvData]);
+  }, [csvData]);
     
 
 
@@ -153,21 +161,7 @@ const NewsScreen: React.FC<any> = ({ csvData, setCsvData, onHomePress, onBookPre
     return `${Math.floor(diffInMinutes / 1440)}d ago`;
   };
 
-  const generateSummaryBullets = (article: PlayerArticle) => {
-    const bullets: string[] = [];
-    bullets.push(`${article.playerName} (${article.teamName})`);
-    const majorKeywords = ["injury", "trade", "questionable", "out", "suspended", "activated"];
-    const sentences = article.content.split(". ");
-    const majorSentence = sentences.find((s) =>
-      majorKeywords.some((kw) => s.toLowerCase().includes(kw))
-    );
-    if (majorSentence) bullets.push(majorSentence.trim());
-    let impact = "No impact on your team";
-    if (article.availability === "questionable") impact = "Monitor for lineup";
-    else if (article.availability === "out") impact = "Replace in lineup";
-    bullets.push(impact);
-    return bullets;
-  };
+  
 
   const filteredArticles = articles.filter((article) => {
     if (selectedFilter === "All") return true;
@@ -188,9 +182,9 @@ const NewsScreen: React.FC<any> = ({ csvData, setCsvData, onHomePress, onBookPre
   );
 
   const renderArticle = ({ item }: { item: PlayerArticle }) => {
-  const isExpanded = expanded === item.headline;
-  const bulletSummary = summaries[item.headline] || [];
-  const isLoadingSummary = loadingSummaries[item.headline] || false;
+  const isExpanded = expanded === item.articleTitle;
+  const bulletSummary = summaries[item.articleTitle] || [];
+  const isLoadingSummary = loadingSummaries[item.articleTitle] || false;
   const isMyPlayer = myPlayers.includes(item.playerName);
   const playerPosition = getPlayerPosition(item.playerName);
   const timeAgo = getTimeAgo(item.date);
@@ -213,10 +207,9 @@ const NewsScreen: React.FC<any> = ({ csvData, setCsvData, onHomePress, onBookPre
           <View
             style={[
               styles.profileWrapper,
-              { borderColor: availabilityColors[item.availability] || "#6b7280" },
+              { borderColor: availabilityColors["available"] || "#6b7280" },
             ]}
           >
-            <Image source={{ uri: item.playerImage }} style={styles.profileImage} />
             <View
               style={[
                 styles.positionBadge,
@@ -233,34 +226,31 @@ const NewsScreen: React.FC<any> = ({ csvData, setCsvData, onHomePress, onBookPre
               <View
                 style={[
                   styles.statusDot,
-                  { backgroundColor: availabilityColors[item.availability] },
+                  { backgroundColor: availabilityColors["available"] },
                 ]}
               />
               <Text style={styles.statusText}>
-                {item.availability === "available" && "Active"}
-                {item.availability === "questionable" && "Monitor lineup"}
-                {item.availability === "out" && "Replace in lineup"}
+                {"available" === "available" && "Active"}
               </Text>
             </View>
           </View>
         </View>
         <Text style={styles.timeStamp}>{timeAgo}</Text>
       </View>
-      <Image source={{ uri: item.articleImage }} style={styles.articleImage} />
       <View style={styles.contentSection}>
-        <Text style={styles.headline}>{item.headline}</Text>
+        <Text style={styles.headline}>{item.articleTitle}</Text>
         <Text numberOfLines={isExpanded ? undefined : 3} style={styles.content}>
-          {item.content}
+          {item.bodyText}
         </Text>
         <TouchableOpacity
-          onPress={() => setExpanded(isExpanded ? null : item.headline)}
+          onPress={() => setExpanded(isExpanded ? null : item.articleTitle)}
         >
           <Text style={styles.readMore}>
             {isExpanded ? "Show Less" : "Read More"}
           </Text>
         </TouchableOpacity>
         <TouchableOpacity
-          onPress={() => Linking.openURL(item.sourceLink)}
+          onPress={() => Linking.openURL(item.sourceURL)}
           style={styles.sourceContainer}
         >
           <Text style={styles.sourceLink}>
@@ -288,7 +278,7 @@ const NewsScreen: React.FC<any> = ({ csvData, setCsvData, onHomePress, onBookPre
       ) : (
         <FlatList
           data={filteredArticles}
-          keyExtractor={(item) => item.headline}
+          keyExtractor={(item) => item.articleTitle}
           renderItem={renderArticle}
           contentContainerStyle={styles.listContainer}
           showsVerticalScrollIndicator={false}
